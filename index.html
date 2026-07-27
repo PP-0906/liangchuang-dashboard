@@ -3071,7 +3071,7 @@ initOverviewCharts();
 // Show imported data indicator
 if (isUsingImportedData) {
     var indicator = document.createElement('div');
-    indicator.style.cssText = 'position:fixed;top:12px;right:50%;transform:translateX(50%);background:#e6f7ee;color:#52c41a;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:center;gap:6px;';
+    indicator.style.cssText = 'position:fixed;top:72px;right:16px;background:#e6f7ee;color:#52c41a;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);white-space:nowrap;';
     indicator.innerHTML = '<span>\u{1F4BE}</span><span>\u5F53\u524D\u663E\u793A\u5BFC\u5165\u6570\u636E</span><span style="color:#8c9bb3;font-weight:400;cursor:pointer;margin-left:6px;" onclick="resetToOriginalData()">\u00D7 \u6062\u590D\u539F\u59CB</span>';
     document.body.appendChild(indicator);
 }
@@ -3110,10 +3110,10 @@ if (typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== '
             isUsingImportedData = true;
 
             // Show cloud data indicator
-            var existingIndicator = document.querySelector('[style*="position:fixed;top:12px"]');
+            var existingIndicator = document.querySelector('[style*="position:fixed;top:72px"]');
             if (existingIndicator) existingIndicator.remove();
             var cloudIndicator = document.createElement('div');
-            cloudIndicator.style.cssText = 'position:fixed;top:12px;right:50%;transform:translateX(50%);background:#e6f7ff;color:#1890ff;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:center;gap:6px;';
+            cloudIndicator.style.cssText = 'position:fixed;top:72px;right:16px;background:#e6f7ff;color:#1890ff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);white-space:nowrap;';
             cloudIndicator.innerHTML = '<span>\u2601\uFE0F</span><span>\u5DF2\u52A0\u8F7D\u4E91\u7AEF\u6570\u636E</span>';
             document.body.appendChild(cloudIndicator);
         }
