@@ -480,74 +480,78 @@
         .rank-badge.silver { background: var(--silver); color: #333; }
         .rank-badge.bronze { background: var(--bronze); color: white; }
 
-        /* ===== Medal Cards (Excellent Students) ===== */
+        /* ===== Medal Cards (Excellent Students - Compact Grid) ===== */
         .medal-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            padding: 24px 20px;
-            justify-content: center;
-            align-items: stretch;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 16px 20px;
         }
         .medal-card {
-            flex: 1 1 180px;
-            max-width: 220px;
-            min-width: 160px;
-            border-radius: 12px;
-            padding: 20px 14px 16px;
+            border-radius: 10px;
+            padding: 14px 10px 12px;
             text-align: center;
             position: relative;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
         .medal-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
         }
         .medal-card.gold {
             background: linear-gradient(160deg, #FFFBEB, #FFF3C4);
-            border: 2px solid #FFD700;
-            box-shadow: 0 2px 8px rgba(255,215,0,0.15);
+            border: 1.5px solid #FFD700;
+            box-shadow: 0 2px 6px rgba(255,215,0,0.12);
         }
         .medal-card.silver {
             background: linear-gradient(160deg, #F8F8F8, #E8E8E8);
-            border: 2px solid #C0C0C0;
-            box-shadow: 0 2px 8px rgba(192,192,192,0.15);
+            border: 1.5px solid #C0C0C0;
+            box-shadow: 0 2px 6px rgba(192,192,192,0.12);
         }
         .medal-card.bronze {
             background: linear-gradient(160deg, #FDF0E6, #FAE0CC);
-            border: 2px solid #CD7F32;
-            box-shadow: 0 2px 8px rgba(205,127,50,0.15);
+            border: 1.5px solid #CD7F32;
+            box-shadow: 0 2px 6px rgba(205,127,50,0.12);
         }
-        .medal-icon {
-            font-size: 44px;
+        .medal-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            width: 100%;
+        }
+        .medal-icon-sm {
+            font-size: 20px;
             line-height: 1;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
-        .medal-rank-label {
-            font-size: 11px;
-            color: #8c9bb3;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
+        .medal-rank-num {
+            font-size: 13px;
+            font-weight: 700;
+            color: #B8860B;
         }
+        .medal-card.silver .medal-rank-num { color: #555; }
+        .medal-card.bronze .medal-rank-num { color: #8B4513; }
         .medal-name {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text);
-            margin-bottom: 6px;
+            line-height: 1.3;
         }
         .medal-subsidiary {
-            margin-bottom: 10px;
+            font-size: 11px;
+            color: #8c9bb3;
+            line-height: 1.2;
         }
         .medal-progress {
-            font-size: 24px;
-            font-weight: 800;
+            font-size: 13px;
+            font-weight: 600;
+            color: #52c41a;
             line-height: 1;
         }
-        .medal-card.gold .medal-progress { color: #B8860B; }
-        .medal-card.silver .medal-progress { color: #555; }
-        .medal-card.bronze .medal-progress { color: #8B4513; }
-        .medal-card .tag { font-size: 12px; }
 
         .text-green { color: var(--green); font-weight: 600; }
         .tag {
@@ -1446,8 +1450,10 @@
             .content { padding: 16px; }
             .page-title { font-size: 18px; margin-bottom: 16px; }
             
-            .medal-cards { flex-direction: row; gap: 12px; padding: 16px 12px; }
-            .medal-card { max-width: 100%; flex: 1 1 140px; }
+            .medal-cards { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; padding: 12px; }
+            .medal-card { padding: 10px 8px 8px; }
+            .medal-name { font-size: 14px; }
+            .medal-icon-sm { font-size: 18px; }
             
             .ranking-toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
             .ranking-toolbar .export-btns { margin-left: 0; flex-direction: column; gap: 8px; }
@@ -1470,9 +1476,12 @@
             .kpi-row { grid-template-columns: 1fr; }
             .header-title { display: none; }
             .header-right { gap: 8px; }
-            .medal-icon { font-size: 38px; }
-            .medal-name { font-size: 16px; }
-            .medal-progress { font-size: 22px; }
+            .medal-cards { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; padding: 10px; }
+            .medal-card { padding: 8px 6px 6px; }
+            .medal-name { font-size: 13px; }
+            .medal-icon-sm { font-size: 16px; }
+            .medal-rank-num { font-size: 11px; }
+            .medal-subsidiary { font-size: 10px; }
             .content { padding: 12px; }
             .page-title { font-size: 16px; }
             .kpi-value { font-size: 22px; }
@@ -2114,7 +2123,7 @@ function initOverviewCharts() {
     window.addEventListener('resize', () => { chart1.resize(); chart2.resize(); });
 }
 
-// ===== Excellent Medal Cards =====
+// ===== Excellent Medal Cards (Compact Grid) =====
 function initExcellentTable() {
     const container = document.getElementById('excellent-medal-cards');
     let html = '';
@@ -2123,11 +2132,16 @@ function initExcellentTable() {
         return;
     }
     D.excellent.forEach((s, i) => {
-        html += `<div class="medal-card gold">
-            <div class="medal-icon">🏆</div>
-            <div class="medal-rank-label">100%完成 · 优秀学员</div>
-            <div class="medal-subsidiary"><span class="tag tag-blue">${s.subsidiary}</span></div>
+        var rank = i + 1;
+        var cardClass = rank === 1 ? 'gold' : (rank === 2 ? 'silver' : (rank === 3 ? 'bronze' : 'gold'));
+        var rankLabel = rank <= 3 ? ('No.' + rank) : ('No.' + rank);
+        html += `<div class="medal-card ${cardClass}">
+            <div class="medal-card-top">
+                <span class="medal-icon-sm">🏆</span>
+                <span class="medal-rank-num">${rankLabel}</span>
+            </div>
             <div class="medal-name">${s.name}</div>
+            <div class="medal-subsidiary">${s.subsidiary}</div>
             <div class="medal-progress">${s.total}%</div>
         </div>`;
     });
