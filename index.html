@@ -2877,7 +2877,7 @@ function downloadDashboard() {
 }
 
 // ===== Cloud Sync (jsonblob.com) =====
-var CLOUD_BLOB_ID = '019fc671-3099-7674-b890-4d6208e1bed0';
+var CLOUD_BLOB_ID = '019fc67f-41a3-78ef-86bb-a1807745f39b';
 var CLOUD_BLOB_URL = 'https://jsonblob.com/api/jsonBlob/';
 var CLOUD_BLOB_KEY = 'dashboard_cloud_blob_id';
 
@@ -2903,10 +2903,14 @@ async function compressData(data) {
     var bytes = new Uint8Array(buf);
     var binary = '';
     for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-    return btoa(binary);
+    var b64 = btoa(binary);
+    return { c: b64 };  // Return object with 'c' key for consistent format
 }
 
-async function decompressData(b64) {
+async function decompressData(payload) {
+    // Accept both {c: "base64"} object and plain base64 string
+    var b64 = (typeof payload === 'object' && payload.c) ? payload.c : payload;
+    if (typeof b64 !== 'string' || b64.length < 10) throw new Error('Invalid compressed data');
     var binary = atob(b64);
     var bytes = new Uint8Array(binary.length);
     for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -2939,9 +2943,14 @@ async function fetchCloudData() {
         setCloudBlobId(parsed.redirect);
         return fetchCloudData();
     }
-    // Otherwise, it should be a base64 string
-    if (typeof parsed !== 'string' || parsed.length < 10) throw new Error('Invalid cloud data format');
-    return await decompressData(parsed);
+    // Handle {c: "base64"} format (standard) or plain base64 string (legacy)
+    if (parsed && typeof parsed === 'object' && parsed.c && typeof parsed.c === 'string') {
+        return await decompressData(parsed);
+    }
+    if (typeof parsed === 'string' && parsed.length >= 10) {
+        return await decompressData(parsed);
+    }
+    throw new Error('Invalid cloud data format');
 }
 
 async function retryFetch(url, options, retries) {
