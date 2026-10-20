@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel 智能拆分打包器</title>
+  <!-- 引入Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome图标（用于Loading、提示） -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- 引入Vue 3 CDN（全局构建版） -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- 引入SheetJS CDN（处理Excel） -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- 引入JSZip CDN（打包ZIP） -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <!-- Tailwind 配置：商务风格配色、自定义工具类 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF', // 商务主色（蓝）
+            secondary: '#4080FF',
+            neutral: '#F5F7FA',
+            dark: '#1D2129',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .drag-active {
+        @apply border-primary bg-primary/5;
+      }
+      .card-shadow {
+        @apply shadow-lg shadow-primary/10;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-8 px-4 sm:px-8">
+  <div id="app" class="max-w-4xl mx-auto bg-white rounded-xl p-6 sm:p-8 card-shadow">
+    <!-- 页面标题 -->
+    <header class="text-center mb-10">
+      <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-2">Excel 智能拆分打包器</h1>
+      <p class="text-gray-500 text-lg">按指定列拆分Excel，自动打包为ZIP下载 | 本地操作 · 数据安全</p>
+    </header>
+
+    <!-- 第一步：文件上传区域 -->
+    <section class="mb-10" v-if="!fileLoaded">
+      <div 
+        class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5"
+        @click="selectFile"
+        @dragover.prevent="dragOver"
+        @dragleave.prevent="dragLeave"
+        @drop.prevent="fileDrop"
+        :class="{ 'drag-active': isDragging }"
+      >
+        <i class="fa-solid fa-file-excel text-6xl text-primary mb-4"></i>
+        <p class="text-lg text-gray-700 mb-2">点击或拖拽Excel/CSV文件到此处上传</p>
+        <p class="text-sm text-gray-500">支持 .xlsx / .csv 格式 | 所有操作均在本地完成</p>
+        <input type="file" ref="fileInput" class="hidden" accept=".xlsx,.csv" @change="handleFileChange">
+      </div>
+    </section>
+
+    <!-- 第二步：选择拆分列 + 数据预览 -->
+    <section class="mb-10 space-y-6" v-else>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-xl font-semibold text-dark">已上传文件：{{ originalFileName }}</h2>
+        <button class="text-primary hover:text-primary/80 flex items-center gap-1" @click="resetTool">
+          <i class="fa-solid fa-rotate-left"></i> 重新上传
+        </button>
+      </div>
+
+      <div class="p-4 bg-neutral rounded-lg">
+        <label class="block text-gray-700 font-medium mb-3">请选择按哪一列进行拆分</label>
+        <select 
+          v-model="selectedKey" 
+          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+          @change="calcUniqueGroups"
+        >
+          <option value="">-- 请选择拆分列 --</option>
+          <option v-for="header in headers" :key="header" :value="header">{{ header }}</option>
+        </select>
+
+        <!-- 唯一值统计提示 -->
+        <div class="mt-4 p-3 rounded-lg bg-primary/5 text-primary" v-if="uniqueCount > 0">
+          <i class="fa-solid fa-info-circle mr-2"></i>
+          检测到 <strong>{{ selectedKey }}</strong> 列有 {{ uniqueCount }} 个不同值，将生成 {{ uniqueCount }} 个文件
+        </div>
+      </div>
+    </section>
+
+    <!-- 第三步：拆分打包按钮 + Loading -->
+    <section class="text-center mb-10" v-if="fileLoaded">
+      <button 
+        v-if="!isProcessing"
+        @click="startSplit"
+        :disabled="!selectedKey"
+        class="px-8 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed disabled:transform-none shadow-md shadow-primary/20"
+      >
+        <i class="fa-solid fa-scissors mr-2"></i>开始拆分并下载
+      </button>
+
+      <!-- Loading 动画 + 进度提示 -->
+      <div class="flex flex-col items-center justify-center gap-3" v-else>
+        <div class="fa-solid fa-spinner fa-spin text-2xl text-primary"></div>
+        <p class="text-gray-700">正在处理中... 请稍候（大文件可能需要几秒）</p>
+        <div class="w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div class="h-full bg-primary" :style="{ width: progress + '%' }"></div>
+        </div>
+      </div>
+
+      <!-- 处理结果提示 -->
+      <div class="mt-4 p-3 rounded-lg bg-green-50 text-green-700" v-if="splitResult">
+        <i class="fa-solid fa-check-circle mr-2"></i>
+        操作成功！已拆分为 <strong>{{ splitResult }}</strong> 个Excel文件，正在下载压缩包...
+      </div>
+    </section>
+
+    <!-- 底部安全提示 -->
+    <footer class="mt-auto pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
+      <i class="fa-solid fa-shield-halved mr-2 text-primary"></i>
+      所有操作在浏览器本地完成，数据不会上传至任何服务器，可放心使用
+    </footer>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          // 基础状态
+          fileLoaded: false, // 是否已上传文件
+          isDragging: false, // 是否正在拖拽文件
+          isProcessing: false, // 是否正在拆分处理
+          progress: 0, // 处理进度
+          splitResult: null, // 拆分结果数量
+          // 文件相关
+          originalFile: null, // 原始上传文件
+          originalFileName: '', // 原始文件名（不含后缀）
+          fileExt: '', // 原始文件后缀
+          // 表格相关
+          headers: [], // 表头数组
+          rawData: [], // 原始表格数据（数组对象）
+          selectedKey: '', // 选中的拆分列
+          uniqueCount: 0, // 拆分列的唯一值数量
+          // 引用
+          fileInput: null,
+        }
+      },
+      mounted() {
+        this.fileInput = this.$refs.fileInput;
+      },
+      methods: {
+        // 点击选择文件
+        selectFile() {
+          this.fileInput.click();
+        },
+        // 拖拽进入
+        dragOver() {
+          this.isDragging = true;
+        },
+        // 拖拽离开
+        dragLeave() {
+          this.isDragging = false;
+        },
+        // 拖拽上传文件
+        fileDrop(e) {
+          this.isDragging = false;
+          const file = e.dataTransfer.files[0];
+          if (file) this.handleFile(file);
+        },
+        // 选择文件后处理
+        handleFileChange(e) {
+          const file = e.target.files[0];
+          if (file) this.handleFile(file);
+        },
+        // 核心：处理上传的Excel/CSV文件
+        handleFile(file) {
+          // 校验文件格式
+          const acceptExts = ['.xlsx', '.csv'];
+          const fileExt = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+          if (!acceptExts.includes(fileExt)) {
+            alert('请上传正确的文件格式！仅支持 .xlsx 和 .csv 格式');
+            return;
+          }
+
+          this.originalFile = file;
+          this.fileExt = fileExt;
+          // 获取原始文件名（不含后缀）
+          this.originalFileName = file.name.slice(0, file.name.lastIndexOf('.'));
+          this.fileLoaded = true;
+          this.splitResult = null;
+
+          // 使用SheetJS读取文件
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            // 获取第一个工作表
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            // 转换为数组对象（表头为键，行数据为值）
+            this.rawData = XLSX.utils.sheet_to_json(worksheet);
+            // 获取表头数组
+            this.headers = this.rawData.length > 0 ? Object.keys(this.rawData[0]) : [];
+          };
+          reader.readAsArrayBuffer(file);
+        },
+        // 计算拆分列的唯一值数量
+        calcUniqueGroups() {
+          if (!this.selectedKey || this.rawData.length === 0) {
+            this.uniqueCount = 0;
+            return;
+          }
+          // 提取拆分列的所有值，处理空值为「未分类」
+          const values = this.rawData.map(item => {
+            const val = item[this.selectedKey];
+            return val === undefined || val === null || val === '' ? '未分类' : val;
+          });
+          // 去重统计数量
+          const uniqueValues = new Set(values);
+          this.uniqueCount = uniqueValues.size;
+        },
+        // 核心：开始拆分并打包
+        async startSplit() {
+          if (!this.selectedKey || this.rawData.length === 0) return;
+          this.isProcessing = true;
+          this.progress = 0;
+          this.splitResult = null;
+
+          try {
+            // 1. 按拆分列分组数据
+            const groups = this.groupDataByKey();
+            const groupKeys = Object.keys(groups);
+            const total = groupKeys.length;
+            const zip = new JSZip();
+            this.progress = 10;
+
+            // 2. 遍历分组，生成每个Excel文件
+            for (let i = 0; i < total; i++) {
+              const key = groupKeys[i];
+              const groupData = groups[key];
+              // 生成Workbook（保留原表头）
+              const worksheet = XLSX.utils.json_to_sheet(groupData);
+              const workbook = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+              // 转换为Excel二进制流
+              const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+              // 处理文件名：替换非法字符，拼接格式
+              const safeFileName = this.formatSafeFileName(`${this.originalFileName}_${key}.xlsx`);
+              // 添加到ZIP
+              zip.file(safeFileName, excelBuffer);
+              // 更新进度
+              this.progress = 10 + Math.ceil((i + 1) / total * 70);
+            }
+
+            this.progress = 85;
+            // 3. 生成ZIP压缩包并下载
+            const zipBlob = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+              this.progress = 85 + Math.ceil(metadata.percent / 100 * 10);
+            });
+            this.progress = 100;
+
+            // 4. 触发浏览器下载
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(zipBlob);
+            downloadLink.download = 'split_result.zip';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(downloadLink.href);
+
+            // 5. 显示结果
+            this.splitResult = total;
+          } catch (error) {
+            console.error('拆分失败：', error);
+            alert(`拆分打包失败！错误信息：${error.message}`);
+          } finally {
+            this.isProcessing = false;
+          }
+        },
+        // 按指定列分组数据（处理空值）
+        groupDataByKey() {
+          return this.rawData.reduce((acc, item) => {
+            // 提取当前行的拆分列值，空值归为「未分类」
+            let key = item[this.selectedKey];
+            if (key === undefined || key === null || key === '') {
+              key = '未分类';
+            }
+            // 初始化分组
+            if (!acc[key]) {
+              acc[key] = [];
+            }
+            acc[key].push({ ...item });
+            return acc;
+          }, {});
+        },
+        // 格式化安全文件名：替换非法字符为下划线
+        formatSafeFileName(name) {
+          // 匹配Windows/Linux/macOS所有文件名非法字符
+          const illegalChars = /[\/\\:*?"<>|]/g;
+          return name.replace(illegalChars, '_');
+        },
+        // 重置工具状态
+        resetTool() {
+          this.fileLoaded = false;
+          this.originalFile = null;
+          this.originalFileName = '';
+          this.fileExt = '';
+          this.headers = [];
+          this.rawData = [];
+          this.selectedKey = '';
+          this.uniqueCount = 0;
+          this.splitResult = null;
+          this.fileInput.value = '';
+        },
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
