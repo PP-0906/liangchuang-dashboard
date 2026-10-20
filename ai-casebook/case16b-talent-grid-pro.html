@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人才盘点九宫格自动落位看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .grid-cell {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .grid-cell.drag-target-active {
+            ring: 2px solid rgba(251, 191, 36, 0.8);
+            transform: scale(1.02);
+            z-index: 20;
+        }
+
+        .employee-tag {
+            transition: all 0.2s ease;
+            cursor: grab;
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            user-select: none;
+        }
+
+        .employee-tag:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            filter: brightness(1.2);
+        }
+
+        .employee-tag:active {
+            cursor: grabbing;
+        }
+
+        .employee-tag.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+            box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.6);
+        }
+
+        .employee-tag.highlight {
+            animation: pulse 1.5s ease-in-out infinite;
+            ring: 2px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+
+        .drop-zone {
+            transition: all 0.3s ease;
+            border: 2px dashed rgba(148, 163, 184, 0.4);
+        }
+
+        .drop-zone.drag-over {
+            border-color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+            transform: scale(1.01);
+        }
+
+        .axis-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 0.2em;
+        }
+
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+
+        .export-area {
+            background: #0f172a;
+            padding: 40px;
+            border-radius: 16px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="text-slate-200">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-tight">人才盘点九宫格自动落位看板</h1>
+                    <p class="text-xs text-slate-400">Talent Mapping Dashboard · 智能落位 · 可视化分析</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="搜索员工姓名..." 
+                        class="w-64 bg-slate-800/80 border border-slate-600 rounded-lg px-4 py-2 pl-10 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <button onclick="exportImage()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    导出图片
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Upload Section -->
+        <div id="uploadSection" class="mb-8">
+            <div id="dropZone" class="drop-zone glass-panel rounded-2xl p-10 text-center cursor-pointer">
+                <input type="file" id="fileInput" accept=".xlsx,.csv" class="hidden">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-800 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">拖拽或点击上传 Excel / CSV 文件</h3>
+                <p class="text-sm text-slate-400 mb-4">系统会自动识别包含"姓名"和"九宫格"数据的列</p>
+                <div class="flex items-center justify-center gap-2 text-xs text-slate-500">
+                    <span class="bg-slate-800 px-2 py-1 rounded">.xlsx</span>
+                    <span class="bg-slate-800 px-2 py-1 rounded">.csv</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div id="statsBar" class="hidden grid grid-cols-4 gap-4 mb-6">
+            <div class="stat-card rounded-xl p-4">
+                <div class="text-2xl font-bold text-white" id="totalCount">0</div>
+                <div class="text-xs text-slate-400">盘点总人数</div>
+            </div>
+            <div class="stat-card rounded-xl p-4 border-l-4 border-purple-500">
+                <div class="text-2xl font-bold text-purple-400" id="purpleCount">0</div>
+                <div class="text-xs text-slate-400">明星人才 (紫区)</div>
+            </div>
+            <div class="stat-card rounded-xl p-4 border-l-4 border-blue-500">
+                <div class="text-2xl font-bold text-blue-400" id="blueCount">0</div>
+                <div class="text-xs text-slate-400">骨干人才 (蓝区)</div>
+            </div>
+            <div class="stat-card rounded-xl p-4 border-l-4 border-emerald-500">
+                <div class="text-2xl font-bold text-emerald-400" id="greenCount">0</div>
+                <div class="text-xs text-slate-400">待提升/观察 (绿区)</div>
+            </div>
+        </div>
+
+        <!-- Matrix Container -->
+        <div id="matrixContainer" class="hidden">
+            <div class="flex gap-6 items-stretch">
+                <!-- Y Axis -->
+                <div class="flex shrink-0 items-stretch">
+                    <div class="flex items-stretch h-full">
+                        <!-- 竖向标题 -->
+                        <div class="flex items-center justify-center px-2">
+                            <div class="axis-label text-slate-400 font-semibold text-sm tracking-widest bg-slate-800/50 px-3 py-8 rounded-xl border border-slate-700">
+                                绩效 Performance
+                            </div>
+                        </div>
+                        <!-- 高中低，与九宫格三行对齐 -->
+                        <div class="flex flex-col w-12">
+                            <div class="flex-1 flex items-center justify-center text-xs text-slate-500 text-center">
+                                <span>高<br>High</span>
+                            </div>
+                            <div class="flex-1 flex items-center justify-center text-xs text-slate-500 text-center">
+                                <span>中<br>Medium</span>
+                            </div>
+                            <div class="flex-1 flex items-center justify-center text-xs text-slate-500 text-center">
+                                <span>低<br>Low</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1">
+                    <!-- Grid -->
+                    <div id="captureArea" class="export-area">
+                        <div class="grid grid-cols-3 gap-3" id="nineGrid">
+                            <!-- Cells will be generated by JS -->
+                        </div>
+
+                        <!-- X Axis -->
+                        <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+                            <div class="text-xs text-slate-400 font-medium">低潜力 Low</div>
+                            <div class="text-xs text-slate-400 font-medium">中潜力 Medium</div>
+                            <div class="text-xs text-slate-400 font-medium">高潜力 High</div>
+                        </div>
+                        <div class="text-center mt-2 text-slate-500 font-semibold text-sm tracking-widest">
+                            潜力 Potential
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-20">
+            <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-slate-800/50 flex items-center justify-center">
+                <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-slate-400 mb-2">暂无数据</h3>
+            <p class="text-sm text-slate-500">请上传包含员工姓名和九宫格落位数据的 Excel 文件</p>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-[100] hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+                <div class="flex items-center justify-between p-6 border-b border-slate-800">
+                    <div>
+                        <h3 id="modalTitle" class="text-lg font-bold text-white"></h3>
+                        <p id="modalSubtitle" class="text-sm text-slate-400 mt-1"></p>
+                    </div>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto scroll-container flex-1">
+                    <div id="modalContent" class="space-y-2"></div>
+                </div>
+                <div class="p-6 border-t border-slate-800 flex justify-between items-center">
+                    <span id="modalCount" class="text-sm text-slate-400"></span>
+                    <button onclick="copyModalList()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        复制名单
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-white px-6 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-[110]">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Grid Configuration
+        const gridConfig = {
+            9: { title: "超级明星", color: "purple", performance: "高绩效", potential: "高潜力", row: 1, col: 3, desc: "核心骨干，重点保留与激励" },
+            8: { title: "绩效之星", color: "purple", performance: "高绩效", potential: "中潜力", row: 1, col: 2, desc: "业绩突出，稳定贡献者" },
+            7: { title: "潜力之星", color: "purple", performance: "中绩效", potential: "高潜力", row: 2, col: 3, desc: "高潜人才，重点培养对象" },
+            6: { title: "熟练员工", color: "blue", performance: "高绩效", potential: "低潜力", row: 1, col: 1, desc: "经验丰富，发挥稳定" },
+            5: { title: "中坚力量", color: "blue", performance: "中绩效", potential: "中潜力", row: 2, col: 2, desc: "组织基石，持续观察" },
+            4: { title: "待发展者", color: "blue", performance: "低绩效", potential: "高潜力", row: 3, col: 3, desc: "潜力可期，需要辅导" },
+            3: { title: "基本胜任", color: "green", performance: "中绩效", potential: "低潜力", row: 2, col: 1, desc: "胜任岗位，关注提升" },
+            2: { title: "差距员工", color: "green", performance: "低绩效", potential: "中潜力", row: 3, col: 2, desc: "能力待提升，制定改进计划" },
+            1: { title: "问题员工", color: "green", performance: "低绩效", potential: "低潜力", row: 3, col: 1, desc: "绩效改进或岗位调整" }
+        };
+
+        const colorMap = {
+            purple: {
+                bg: 'bg-gradient-to-br from-purple-600/90 to-violet-700/90',
+                border: 'border-purple-400/30',
+                tag: 'bg-purple-900/60 text-purple-100 border-purple-500/30',
+                header: 'text-purple-100',
+                badge: 'bg-purple-500/20 text-purple-200'
+            },
+            blue: {
+                bg: 'bg-gradient-to-br from-blue-600/90 to-sky-700/90',
+                border: 'border-blue-400/30',
+                tag: 'bg-blue-900/60 text-blue-100 border-blue-500/30',
+                header: 'text-blue-100',
+                badge: 'bg-blue-500/20 text-blue-200'
+            },
+            green: {
+                bg: 'bg-gradient-to-br from-emerald-600/90 to-teal-700/90',
+                border: 'border-emerald-400/30',
+                tag: 'bg-emerald-900/60 text-emerald-100 border-emerald-500/30',
+                header: 'text-emerald-100',
+                badge: 'bg-emerald-500/20 text-emerald-200'
+            }
+        };
+
+        let employeeData = {};
+        let currentModalList = [];
+        let dragSourceBox = null;
+        let dragEmployeeName = null;
+
+        // Initialize Grid
+        function initGrid() {
+            const grid = document.getElementById('nineGrid');
+            grid.innerHTML = '';
+
+            const visualOrder = [6, 8, 9, 3, 5, 7, 1, 2, 4];
+
+            visualOrder.forEach(boxNum => {
+                const config = gridConfig[boxNum];
+                const colors = colorMap[config.color];
+
+                const cell = document.createElement('div');
+                cell.className = `grid-cell ${colors.bg} ${colors.border} border rounded-xl p-4 min-h-[160px] flex flex-col cursor-pointer`;
+                cell.dataset.box = boxNum;
+                cell.onclick = (e) => {
+                    if (!e.target.classList.contains('employee-tag')) {
+                        openModal(boxNum);
+                    }
+                };
+
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('dragleave', handleDragLeave);
+                cell.addEventListener('drop', handleDrop);
+
+                cell.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold ${colors.badge} px-2 py-0.5 rounded-full">${boxNum}</span>
+                            <h4 class="font-bold ${colors.header} text-sm">${config.title}</h4>
+                        </div>
+                        <span class="text-xs text-white/60 count-badge">0人</span>
+                    </div>
+                    <div class="flex-1 flex flex-wrap content-start gap-1.5 overflow-y-auto scroll-container employee-container" style="max-height: 200px;">
+                    </div>
+                    <div class="mt-2 text-[10px] text-white/40 truncate">${config.desc}</div>
+                `;
+
+                grid.appendChild(cell);
+            });
+        }
+
+        // Drag & Drop Handlers
+        function handleDragStart(e) {
+            dragSourceBox = parseInt(this.dataset.box);
+            dragEmployeeName = this.dataset.name;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', dragEmployeeName);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('drag-target-active');
+            });
+            dragSourceBox = null;
+            dragEmployeeName = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const targetBox = parseInt(this.dataset.box);
+            if (targetBox !== dragSourceBox) {
+                this.classList.add('drag-target-active');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-target-active');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-target-active');
+
+            const targetBox = parseInt(this.dataset.box);
+            const name = e.dataTransfer.getData('text/plain');
+
+            if (!name || !dragSourceBox || dragSourceBox === targetBox) return;
+
+            const sourceList = employeeData[dragSourceBox];
+            const idx = sourceList.indexOf(name);
+            if (idx > -1) {
+                sourceList.splice(idx, 1);
+                employeeData[targetBox].push(name);
+
+                renderCell(dragSourceBox);
+                renderCell(targetBox);
+                updateStats();
+
+                const targetTitle = gridConfig[targetBox].title;
+                showToast(`已将 ${name} 移动到 ${targetBox}号格 · ${targetTitle}`);
+
+                const modal = document.getElementById('modal');
+                if (!modal.classList.contains('hidden')) {
+                    const modalTitle = document.getElementById('modalTitle').textContent;
+                    if (modalTitle.includes(dragSourceBox + '号格') || modalTitle.includes(targetBox + '号格')) {
+                        const openBox = modalTitle.includes(dragSourceBox + '号格') ? dragSourceBox : targetBox;
+                        openModal(openBox);
+                    }
+                }
+            }
+        }
+
+        function renderCell(boxNum) {
+            const cell = document.querySelector(`.grid-cell[data-box="${boxNum}"]`);
+            if (!cell) return;
+
+            const container = cell.querySelector('.employee-container');
+            const countBadge = cell.querySelector('.count-badge');
+            const colors = colorMap[gridConfig[boxNum].color];
+            const names = employeeData[boxNum] || [];
+
+            container.innerHTML = '';
+            countBadge.textContent = `${names.length}人`;
+
+            names.forEach((name, idx) => {
+                const tag = document.createElement('span');
+                tag.className = `employee-tag ${colors.tag} border px-2 py-1 rounded-md text-xs font-medium`;
+                tag.textContent = name;
+                tag.dataset.name = name;
+                tag.dataset.box = boxNum;
+                tag.draggable = true;
+                tag.style.animationDelay = `${idx * 0.03}s`;
+
+                tag.addEventListener('dragstart', handleDragStart);
+                tag.addEventListener('dragend', handleDragEnd);
+
+                container.appendChild(tag);
+            });
+        }
+
+        function renderEmployees() {
+            for (let i = 1; i <= 9; i++) {
+                renderCell(i);
+            }
+        }
+
+        // File Upload Handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    processData(jsonData);
+                } catch (err) {
+                    showToast('文件解析失败，请检查文件格式');
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processData(rows) {
+            if (rows.length < 2) {
+                showToast('数据行数不足，请检查文件');
+                return;
+            }
+
+            const headers = rows[0].map(h => String(h).toLowerCase().trim());
+
+            let nameCol = -1, boxCol = -1;
+
+            headers.forEach((h, idx) => {
+                if (nameCol === -1 && (h.includes('姓') || h.includes('name') || h.includes('名') || h.includes('员工'))) {
+                    nameCol = idx;
+                }
+                if (boxCol === -1 && (h.includes('九宫格') || h.includes('数字') || h.includes('编号') || h.includes('位置') || h.includes('box') || h.includes('格') || h.includes('序号'))) {
+                    boxCol = idx;
+                }
+            });
+
+            if (nameCol === -1 || boxCol === -1) {
+                showToast('未能自动识别表头，请确保包含"姓名"和"九宫格"相关列');
+                return;
+            }
+
+            employeeData = {};
+            for (let i = 1; i <= 9; i++) employeeData[i] = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row[nameCol]) continue;
+
+                const name = String(row[nameCol]).trim();
+                const boxVal = parseInt(row[boxCol]);
+
+                if (name && boxVal >= 1 && boxVal <= 9) {
+                    employeeData[boxVal].push(name);
+                }
+            }
+
+            renderEmployees();
+            updateStats();
+
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('matrixContainer').classList.remove('hidden');
+            document.getElementById('statsBar').classList.remove('hidden');
+            document.getElementById('statsBar').classList.add('grid');
+
+            showToast(`成功导入 ${rows.length - 1} 条数据`);
+        }
+
+        function updateStats() {
+            let total = 0, purple = 0, blue = 0, green = 0;
+
+            for (let i = 1; i <= 9; i++) {
+                const count = employeeData[i].length;
+                total += count;
+                if ([9,8,7].includes(i)) purple += count;
+                else if ([6,5,4].includes(i)) blue += count;
+                else green += count;
+            }
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('purpleCount').textContent = purple;
+            document.getElementById('blueCount').textContent = blue;
+            document.getElementById('greenCount').textContent = green;
+        }
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            const tags = document.querySelectorAll('.employee-tag');
+
+            tags.forEach(tag => {
+                tag.classList.remove('highlight');
+                if (query && tag.dataset.name.toLowerCase().includes(query)) {
+                    tag.classList.add('highlight');
+                    tag.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+
+        // Modal
+        function openModal(boxNum) {
+            const config = gridConfig[boxNum];
+            const names = employeeData[boxNum] || [];
+            currentModalList = [...names];
+
+            document.getElementById('modalTitle').textContent = `${boxNum}号格 · ${config.title}`;
+            document.getElementById('modalSubtitle').textContent = `${config.performance} · ${config.potential} · 共 ${names.length} 人`;
+            document.getElementById('modalCount').textContent = `共 ${names.length} 人`;
+
+            const content = document.getElementById('modalContent');
+            content.innerHTML = '';
+
+            if (names.length === 0) {
+                content.innerHTML = '<div class="text-center text-slate-500 py-8">暂无员工数据</div>';
+            } else {
+                names.forEach((name, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 hover:bg-slate-800 transition-colors';
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-400">${idx + 1}</span>
+                            <span class="text-white font-medium">${name}</span>
+                        </div>
+                        <span class="text-xs text-slate-500">${config.performance} / ${config.potential}</span>
+                    `;
+                    content.appendChild(row);
+                });
+            }
+
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function copyModalList() {
+            if (currentModalList.length === 0) return;
+            const text = currentModalList.join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('名单已复制到剪贴板');
+            });
+        }
+
+        // Export Image
+        async function exportImage() {
+            const captureArea = document.getElementById('captureArea');
+            const btn = document.querySelector('button[onclick="exportImage()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 生成中...';
+
+            try {
+                const canvas = await html2canvas(captureArea, {
+                    backgroundColor: '#0f172a',
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+
+                const link = document.createElement('a');
+                link.download = `人才盘点九宫格_${new Date().toLocaleDateString()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                showToast('图片导出成功');
+            } catch (err) {
+                showToast('导出失败，请重试');
+                console.error(err);
+            } finally {
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Initialize
+        initGrid();
+    </script>
+</body>
+</html>
