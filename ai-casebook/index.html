@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>亮创本色·AI新声｜AI创新大赛 · AI工作台参考案例集</title>
+<style>
+:root{
+  --bg-deep:#060A18;--bg:#0A1024;--card:#121A38;--card2:#182346;
+  --line:rgba(122,150,255,.18);--line-strong:rgba(122,150,255,.34);
+  --purple:#8B5CF6;--purple-l:#A78BFA;--cyan:#22D3EE;--blue:#3B82F6;
+  --feishu:#3370FF;--doubao:#22D3EE;--wb:#A855F7;--coze:#FBBF24;--gold:#FBBF24;
+  --text:#EDF2FF;--muted:#93A4CB;--dim:#647399;--green:#34D399;--red:#FB7185;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg-deep);color:var(--text);line-height:1.75;font-size:14px;-webkit-font-smoothing:antialiased}
+.page{max-width:1280px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 0 80px rgba(0,0,0,.6)}
+.grid-bg{position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(90,130,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(90,130,255,.055) 1px,transparent 1px);
+  background-size:44px 44px}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;opacity:.5}
+a{color:inherit;text-decoration:none}
+.wrap{position:relative;z-index:2;padding:0 56px}
+.cover{padding:88px 56px 72px;position:relative;overflow:hidden;
+  background:radial-gradient(900px 460px at 12% 8%,rgba(139,92,246,.30),transparent 62%),
+             radial-gradient(760px 420px at 92% 22%,rgba(34,211,238,.22),transparent 60%),
+             radial-gradient(700px 400px at 70% 100%,rgba(59,130,246,.20),transparent 62%),
+             linear-gradient(160deg,#070C1E 0%,#0B1330 55%,#0A1024 100%)}
+.cover .grid-bg{opacity:1}
+.cover .glow.g1{width:420px;height:420px;background:#7C3AED;top:-140px;left:-100px;opacity:.35}
+.cover .glow.g2{width:360px;height:360px;background:#22D3EE;bottom:-160px;right:40px;opacity:.28}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:7px 16px;border-radius:100px;
+  background:rgba(139,92,246,.14);border:1px solid rgba(167,139,250,.42);color:#C4B5FD;font-size:12.5px;letter-spacing:2px;font-weight:600;position:relative;z-index:3}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.cover h1{font-size:56px;line-height:1.14;margin:26px 0 0;font-weight:800;letter-spacing:-1px;position:relative;z-index:3}
+.cover h1 .grad{background:linear-gradient(96deg,#A78BFA 0%,#22D3EE 48%,#FBBF24 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{font-size:18.5px;color:#A9BBDD;margin-top:20px;max-width:820px;position:relative;z-index:3}
+.cover .sub b{color:#E9F0FF}
+.cover .tagline{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px;position:relative;z-index:3}
+.cover .tagline span{padding:9px 18px;border-radius:10px;background:rgba(255,255,255,.045);border:1px solid rgba(140,170,255,.22);font-size:13.5px;color:#CBDAF7;backdrop-filter:blur(6px)}
+.cover .meta{margin-top:44px;display:flex;gap:44px;flex-wrap:wrap;position:relative;z-index:3}
+.cover .meta div .n{font-size:34px;font-weight:800;background:linear-gradient(90deg,#22D3EE,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .meta div .l{font-size:12.5px;color:#8FA2C9;letter-spacing:.5px;margin-top:2px}
+.cover .foot{margin-top:52px;padding-top:22px;border-top:1px solid rgba(140,170,255,.16);font-size:12.5px;color:#7286AC;position:relative;z-index:3;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+section{padding:56px 0;position:relative}
+.sec-head{display:flex;align-items:flex-end;gap:18px;margin-bottom:30px;flex-wrap:wrap}
+.sec-no{font-size:15px;font-weight:800;letter-spacing:2px;color:var(--cyan);padding:5px 12px;border:1px solid rgba(34,211,238,.36);border-radius:8px;background:rgba(34,211,238,.07)}
+.sec-title{font-size:30px;font-weight:800;letter-spacing:-.5px}
+.sec-title .u{background:linear-gradient(100deg,#A78BFA,#22D3EE);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sec-desc{color:var(--muted);font-size:14px;margin-top:8px;max-width:940px}
+.nav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.nav-card{padding:24px 24px;border-radius:16px;background:linear-gradient(165deg,var(--card),#0E1631);border:1px solid var(--line);position:relative;overflow:hidden;transition:.25s}
+.nav-card .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.nav-card .ico{font-size:26px;margin-bottom:12px}
+.nav-card h4{font-size:18px;font-weight:700;margin-bottom:6px}
+.nav-card p{font-size:13px;color:var(--muted);line-height:1.6}
+.nav-card .cnt{margin-top:14px;font-size:12px;color:var(--dim)}
+/* 对比 */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.vs-col{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 26px}
+.vs-col.new{border-color:rgba(139,92,246,.42);background:linear-gradient(160deg,rgba(139,92,246,.10),var(--card))}
+.vs-col h4{font-size:17px;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.vs-col ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.vs-col li{font-size:13px;color:#C3D2F0;display:flex;gap:9px;line-height:1.6}
+.vs-col li .m{flex:0 0 auto;font-weight:800}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.rung{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 18px;position:relative;overflow:hidden}
+.rung.hl{border-color:rgba(139,92,246,.5);background:linear-gradient(165deg,rgba(139,92,246,.14),var(--card))}
+.rung .lv{font-size:12px;font-weight:800;letter-spacing:1px;color:#fff;padding:3px 10px;border-radius:7px;display:inline-block}
+.rung h5{font-size:15px;margin:12px 0 8px;font-weight:700}
+.rung p{font-size:12px;color:var(--muted);line-height:1.65}
+.rung .ex{margin-top:12px;font-size:11.5px;color:var(--dim);padding-top:10px;border-top:1px dashed var(--line)}
+.idx-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.idx-item{display:inline-flex;align-items:center;gap:9px;padding:8px 15px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-size:12.5px;color:#CBDAF7;transition:.2s}
+.idx-item:hover{border-color:var(--line-strong);background:var(--card2)}
+.idx-item .no{font-weight:800;color:var(--cyan);font-size:11.5px}
+.idx-item em{font-style:normal;font-size:10.5px;color:var(--dim);border-left:1px solid var(--line);padding-left:9px}
+.pill{display:inline-block;padding:3px 11px;border-radius:7px;font-size:11.5px;font-weight:700;letter-spacing:.3px}
+.pill.feishu{background:rgba(51,112,255,.16);color:#7BA5FF;border:1px solid rgba(51,112,255,.34)}
+.pill.doubao{background:rgba(34,211,238,.14);color:#67E8F9;border:1px solid rgba(34,211,238,.32)}
+.pill.wb{background:rgba(168,85,247,.16);color:#C4B5FD;border:1px solid rgba(168,85,247,.34)}
+.pill.coze{background:rgba(251,191,36,.14);color:#FCD34D;border:1px solid rgba(251,191,36,.32)}
+.case{background:linear-gradient(168deg,var(--card) 0%,#0D1531 100%);border:1px solid var(--line);border-radius:20px;margin-bottom:26px;overflow:hidden;position:relative}
+.case::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--purple),var(--cyan))}
+.case.feishu::before{background:linear-gradient(180deg,#3370FF,#22D3EE)}
+.case.doubao::before{background:linear-gradient(180deg,#22D3EE,#34D399)}
+.case.wb::before{background:linear-gradient(180deg,#A855F7,#8B5CF6)}
+.case.coze::before{background:linear-gradient(180deg,#FBBF24,#F97316)}
+.case-head{padding:24px 30px 20px 34px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.case-num{font-size:13px;font-weight:800;color:var(--dim);letter-spacing:1px;padding-top:6px}
+.case-title{flex:1;min-width:300px}
+.case-title h3{font-size:21px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.case-title .pain{font-size:13.2px;color:var(--muted);margin-top:7px}
+.tag-sub{font-size:12px;color:var(--dim);padding:5px 12px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--line);height:fit-content}
+.case-body{padding:24px 30px 26px 34px;display:grid;grid-template-columns:404px 1fr;gap:30px}
+.case-visual{border-radius:14px;background:#070C1E;border:1px solid var(--line);padding:12px;align-self:start}
+.case-visual svg{display:block;width:100%;height:auto;border-radius:8px}
+.vis-cap{font-size:11px;color:var(--dim);text-align:center;margin-top:9px;letter-spacing:.3px}
+.case-right{display:flex;flex-direction:column;gap:16px}
+.blk .blk-h{font-size:12.5px;font-weight:700;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.blk .blk-h .tag{padding:2px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(139,92,246,.16);color:#C4B5FD}
+.blk.how .blk-h .tag{background:rgba(34,211,238,.14);color:#67E8F9}
+.blk.eff .blk-h .tag{background:rgba(52,211,153,.14);color:#6EE7B7}
+.blk.ref .blk-h .tag{background:rgba(251,191,36,.14);color:#FCD34D}
+.mods{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mod{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.mod .n{font-size:12.5px;font-weight:700;color:#DCE6FF;display:flex;align-items:center;gap:7px}
+.mod .n .i{width:16px;height:16px;border-radius:5px;background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.mod .d{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.55}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px;color:#A9BBDD}
+.flow span{padding:4px 10px;border-radius:7px;background:rgba(139,92,246,.10);border:1px solid rgba(139,92,246,.24)}
+.flow .ar{color:var(--dim);background:none;border:none;padding:0 2px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:7px}
+.steps li{font-size:12.8px;color:#C3D2F0;display:flex;gap:10px;line-height:1.6}
+.steps li .k{flex:0 0 20px;height:20px;border-radius:6px;background:rgba(34,211,238,.14);color:#67E8F9;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.steps-w{padding-top:12px;border-top:1px dashed var(--line)}
+.metrics{display:flex;gap:10px;flex-wrap:wrap}
+.metric{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.22);border-radius:10px;padding:10px 14px;min-width:112px}
+.metric .v{font-size:18px;font-weight:800;color:#6EE7B7;line-height:1.2}
+.metric .k{font-size:11px;color:var(--muted);margin-top:3px}
+.ref-box{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.20);border-radius:10px;padding:12px 15px;font-size:12.5px;color:#E3D9B8;line-height:1.75}
+.link-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn-link{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:10px;font-size:12.3px;font-weight:600;border:1px solid var(--line-strong);background:rgba(122,150,255,.09);color:#BFD2FF;transition:.2s}
+.btn-link:hover{background:rgba(122,150,255,.18);border-color:rgba(160,190,255,.6)}
+.btn-link .arw{font-size:11px;opacity:.8}
+.form-guide{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.fg-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+.fg-item .h{font-size:14.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.fg-item .h .idx{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.cmp{font-size:12.5px;line-height:1.75}
+.cmp .bad{color:#F0A3AD;display:flex;gap:8px;margin-bottom:8px}
+.cmp .good{color:#7DE3B6;display:flex;gap:8px}
+.cmp .lb{flex:0 0 auto;font-weight:800}
+.ending{padding:74px 56px;text-align:center;position:relative;overflow:hidden;
+  background:radial-gradient(700px 360px at 50% 0%,rgba(139,92,246,.30),transparent 65%),linear-gradient(160deg,#0B1330,#080D1F)}
+.ending h2{font-size:42px;font-weight:800;letter-spacing:-1px}
+.ending h2 .grad{background:linear-gradient(96deg,#A78BFA,#22D3EE,#FBBF24);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ending p{color:#A9BBDD;font-size:16px;margin-top:18px}
+.three{display:flex;gap:18px;justify-content:center;margin-top:38px;flex-wrap:wrap}
+.three div{padding:16px 26px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:14px;color:#CBD9F6;font-weight:600}
+.three div b{display:block;font-size:11.5px;color:var(--cyan);font-weight:700;letter-spacing:1.5px;margin-bottom:5px}
+.footnote{padding:26px 56px 40px;font-size:11.5px;color:var(--dim);line-height:1.9;border-top:1px solid var(--line)}
+.footnote b{color:#8FA2C9}
+@media print{body{background:#fff}.page{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="grid-bg"></div>
+
+<div class="cover">
+  <div class="grid-bg"></div>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="badge"><span class="dot"></span>2026 · 亮创集团 AI 创新大赛</div>
+  <h1>亮创本色 · <span class="grad">AI 新声</span><br>AI 工作台参考案例集</h1>
+  <p class="sub">我们不缺"会用 AI 聊两句"的人，缺的是能把 AI <b>做成一个真正跑得起来的工作台</b>的人。<br>本案例集给你 <b>12 个参考案例 + 5 个真实实战案例</b>——每一个都拆开了核心模块、数据链路与搭建路径，<br>用你手上就有的 <b>飞书 · 豆包 · WorkBuddy · 扣子</b>，照着搭，就是你的参赛作品。</p>
+  <div class="tagline">
+    <span>🏗 对标"AI 工作台"级别</span>
+    <span>🧩 模块化拆解，可照抄</span>
+    <span>🖼 工作台界面示意</span>
+    <span>🔗 附真实案例与体验链接</span>
+    <span>📋 对照报名表填写</span>
+  </div>
+  <div class="meta">
+    <div><div class="n">12</div><div class="l">AI 工作台案例</div></div>
+    <div><div class="n">4</div><div class="l">主流智能体平台</div></div>
+    <div><div class="n">48</div><div class="l">可复用功能模块</div></div>
+    <div><div class="n">0</div><div class="l">代码基础要求</div></div>
+  </div>
+  <div class="foot">
+    <span>发放对象：报名参与 AI 创新大赛的全体员工</span>
+    <span>用途：报名参考 · 灵感启发 · 填写指导</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<section>
+  <div class="sec-head">
+    <span class="sec-no">01</span>
+    <div>
+      <div class="sec-title">先想清楚：<span class="u">什么是"AI 工作台"</span></div>
+      <div class="sec-desc">"会写提示词"和"能做出工作台"是两回事。评委想看的是后者——一个能持续用、多模块协同、有数据闭环的完整产品。</div>
+    </div>
+  </div>
+  <div class="vs">
+    <div class="vs-col">
+      <h4><span style="color:#94A3B8">🧰</span> 小工具 / 单点 Bot</h4>
+      <ul>
+        <li><span class="m" style="color:#94A3B8">·</span>一个提示词、一个固定流程，用完就完</li>
+        <li><span class="m" style="color:#94A3B8">·</span>只解决某一个瞬间的问题</li>
+        <li><span class="m" style="color:#94A3B8">·</span>没有数据沉淀，别人无法复用</li>
+        <li><span class="m" style="color:#94A3B8">·</span>换个人、换个场景就不好用</li>
+      </ul>
+    </div>
+    <div class="vs-col new">
+      <h4><span style="color:#A78BFA">🏗</span> AI 工作台 <span class="pill wb" style="margin-left:6px">大赛对标</span></h4>
+      <ul>
+        <li><span class="m" style="color:#A78BFA">·</span>多个功能模块协同，像一个小产品</li>
+        <li><span class="m" style="color:#A78BFA">·</span>接入真实数据，形成"采集→处理→输出"闭环</li>
+        <li><span class="m" style="color:#A78BFA">·</span>结果自动沉淀，团队可复用、可迭代</li>
+        <li><span class="m" style="color:#A78BFA">·</span>有可视化界面，有可衡量的效果指标</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ladder" style="margin-top:22px;grid-template-columns:repeat(4,1fr)">
+    <div class="rung">
+      <span class="lv" style="background:linear-gradient(135deg,#64748B,#475569)">L1 · 单点工具</span>
+      <h5>一个提示词</h5>
+      <p>如"帮我写一段文案"，随手就能用。</p>
+      <div class="ex">参赛门槛：太低，不建议单独报</div>
+    </div>
+    <div class="rung">
+      <span class="lv" style="background:linear-gradient(135deg,#22D3EE,#0891B2)">L2 · 智能助手</span>
+      <h5>一个带知识库的 Bot</h5>
+      <p>如"产品知识问答助手"，已具备专业价值。</p>
+      <div class="ex">可作为作品的组成部分</div>
+    </div>
+    <div class="rung hl">
+      <span class="lv" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">L3 · AI 工作台</span>
+      <h5>多模块 + 数据闭环</h5>
+      <p>本案例集的 12 个参考案例都在这一层：有模块、有链路、有界面、有指标。</p>
+      <div class="ex">👉 大赛推荐目标层级</div>
+    </div>
+    <div class="rung">
+      <span class="lv" style="background:linear-gradient(135deg,#FBBF24,#F59E0B)">L4 · 智能体团队</span>
+      <h5>多智能体协作运营</h5>
+      <p>多个工作台互联，自动分工、闭环运营。</p>
+      <div class="ex">进阶目标，量大者可挑战</div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:20px">
+  <div class="sec-head">
+    <span class="sec-no">02</span>
+    <div>
+      <div class="sec-title">12 个参考案例，<span class="u">分两条线</span></div>
+      <div class="sec-desc">一条是"赚钱"的行业业务线，一条是"省心"的职能支撑线。挑和你岗位最像的一个，先照着搭通，再改成你自己的。</div>
+    </div>
+  </div>
+  <div class="nav-grid"><div class="nav-card"><div class="bar" style="background:#3370FF"></div><div class="ico">🏪</div><h4>行业业务线</h4><p>贴近一线业务的“赚钱”工作台</p><div class="cnt">6 个案例</div></div><div class="nav-card"><div class="bar" style="background:#A855F7"></div><div class="ico">🧩</div><h4>职能支撑线</h4><p>让人效翻倍的“省心”工作台</p><div class="cnt">6 个案例</div></div></div>
+</section>
+
+
+<section id="group">
+  <div class="sec-head">
+    <span class="sec-no" style="color:#3370FF;border-color:#3370FF55;background:#3370FF12">行业</span>
+    <div>
+      <div class="sec-title">行业业务线 <span class="u">6 个 AI 工作台</span></div>
+      <div class="sec-desc">贴近一线业务的“赚钱”工作台。每个案例都拆成了「核心模块 → 数据链路 → 搭建路径 → 效果 → 报名表映射」五段，照着抄即可。</div>
+    </div>
+  </div>
+  <div class="idx-row"><a class="idx-item" href="#case1"><span class="no">01</span>销售陪练工作台<em>飞书</em></a><a class="idx-item" href="#case2"><span class="no">02</span>AI 虚拟导购工作台<em>扣子 Coze</em></a><a class="idx-item" href="#case3"><span class="no">03</span>会员营销工作台<em>豆包</em></a><a class="idx-item" href="#case4"><span class="no">04</span>智能库存预警工作台<em>飞书</em></a><a class="idx-item" href="#case5"><span class="no">05</span>AI 客服工作台<em>扣子 Coze</em></a><a class="idx-item" href="#case6"><span class="no">06</span>产品知识库工作台<em>扣子 Coze</em></a></div>
+  
+<div class="case feishu">
+  <div class="case-head">
+    <div class="case-num">CASE 01</div>
+    <div class="case-title">
+      <h3>销售陪练工作台 <span class="pill feishu">飞书 × 扣子</span></h3>
+      <div class="pain">💢 痛点：新人靠“师带徒”上手慢（3–6 个月），话术不统一，客户成了练兵场，成交率参差。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：让新人“先在 AI 上练一百遍，再上真实客户”，把培养周期压到 1 个月。</div>
+    </div>
+    <div class="tag-sub">零售门店 · 新人培养</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">门店销售陪练台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#3370FF" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#3370FF" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#3370FF" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◍</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">对练/面试</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◇</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">能力档案</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">话术/题库</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">成长看板</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">门店销售陪练台</text><rect x="300.0" y="68.0" width="84.0" height="166.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.18)" stroke-width="0.9"/><text x="308.0" y="82.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">实时评分</text><text x="308.0" y="98.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">需求挖掘</text><text x="376.0" y="98.0" fill="#3370FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">82</text><rect x="308.0" y="103.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="103.0" width="55.8" height="5.0" rx="3.0" fill="#3370FF" opacity="0.9"/><text x="308.0" y="131.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">产品讲解</text><text x="376.0" y="131.0" fill="#3370FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">76</text><rect x="308.0" y="136.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="136.0" width="51.7" height="5.0" rx="3.0" fill="#3370FF" opacity="0.9"/><text x="308.0" y="164.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">异议处理</text><text x="376.0" y="164.0" fill="#3370FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">68</text><rect x="308.0" y="169.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="169.0" width="46.2" height="5.0" rx="3.0" fill="#3370FF" opacity="0.9"/><text x="308.0" y="197.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">成交推动</text><text x="376.0" y="197.0" fill="#3370FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">71</text><rect x="308.0" y="202.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="202.0" width="48.3" height="5.0" rx="3.0" fill="#3370FF" opacity="0.9"/><rect x="308.0" y="226.0" width="68.0" height="1.0" rx="0.0" fill="rgba(122,150,255,.2)"/><rect x="112.0" y="68.0" width="178.0" height="54.0" rx="8.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.9"/><text x="120.0" y="84.0" fill="#3370FF" font-size="6.8" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 顾客 · 比价型</text><text x="120.0" y="98.0" fill="#EAF0FF" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">“这款比隔壁贵 800，凭什么？”</text><text x="120.0" y="110.0" fill="#EAF0FF" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">语气：质疑 / 不耐烦</text><rect x="180.0" y="130.0" width="110.0" height="26.0" rx="8.0" fill="#1B2547" stroke="rgba(90,130,255,.34)" stroke-width="0.9"/><text x="188.0" y="147.0" fill="#CBD9F6" font-size="6.9" font-weight="normal" font-family="sans-serif" text-anchor="start">“您先感受下这块屏和影像…”</text><rect x="112.0" y="164.0" width="178.0" height="40.0" rx="8.0" fill="#121A38" stroke="rgba(122,150,255,.24)" stroke-width="0.9"/><text x="120.0" y="179.0" fill="#C4B5FD" font-size="6.8" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 教练点评</text><text x="120.0" y="193.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">先共情再讲价值差异，别急着报参数</text><text x="120.0" y="202.0" fill="#FBBF24" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">→ 建议再练 2 轮</text><rect x="112.0" y="212.0" width="272.0" height="18.0" rx="6.0" fill="#121A38"/><text x="122.0" y="224.0" fill="#8FA2C9" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">第 7 / 20 轮 · 剧本：旗舰机到店 · 无次数限制</text></svg>
+      <div class="vis-cap">工作台界面示意：门店销售陪练台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>场景对练</div><div class="d">AI 扮演 6 类典型顾客（参数控 / 比价型 / 迟疑型 / 送礼型 / 商务型 / 小白），新人无次数限制实战</div></div><div class="mod"><div class="n"><span class="i">2</span>四维评分</div><div class="d">从需求挖掘 / 产品讲解 / 异议处理 / 成交推动 4 个维度实时打分并给改进建议</div></div><div class="mod"><div class="n"><span class="i">3</span>能力档案</div><div class="d">每人薄弱环节自动沉淀为“训练地图”，谁该补哪块一目了然</div></div><div class="mod"><div class="n"><span class="i">4</span>话术萃取</div><div class="d">把 Top 销售的优秀应答沉淀成话术库，自动推送给全团队复用</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>岗位能力模型</span><span class="ar">→</span><span>AI 剧本对练</span><span class="ar">→</span><span>多维实时评分</span><span class="ar">→</span><span>短板定向推送</span><span class="ar">→</span><span>复练复测达标</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>用飞书多维表格建“训练台账”，录入岗位能力模型与评分维度</li><li><span class="k">2</span>扣子 Bot 做“AI 顾客”，导入销售剧本与产品知识库</li><li><span class="k">3</span>对练数据回写表格，自动生成个人成长档案与门店榜单</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">90→30天</div><div class="k">新人培养周期</div></div><div class="metric"><div class="v">+150%</div><div class="k">新员工 GMV</div></div><div class="metric"><div class="v">30%→90%</div><div class="k">上岗合格率</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“新人上手慢、话术不统一”；目标写“培养周期 90→30 天、合格率升到 90%”；场景写“门店新销售上岗前训练”；工具写“飞书多维表格 + 扣子 AI 对练”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://www.sinostrong.com/article/3382.html" target="_blank">上海思创 AI 智能销售陪练案例（800 门店电子品牌） <span class="arw">↗</span></a><a class="btn-link" href="https://www.51ima.com/news/11569.html" target="_blank">得助智能 AI 陪练 · 高端 3C 零售落地 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case coze">
+  <div class="case-head">
+    <div class="case-num">CASE 02</div>
+    <div class="case-title">
+      <h3>AI 虚拟导购工作台 <span class="pill coze">扣子 Coze</span></h3>
+      <div class="pain">💢 痛点：顾客到店没人及时接待、离店就断联；导购经验参差，推荐全凭感觉。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：让“第一次接触”就有专业接待，顾客离店也能持续跟进。</div>
+    </div>
+    <div class="tag-sub">零售门店 · 到店转化</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">门店虚拟导购台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#FBBF24" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#FBBF24" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#FBBF24" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◍</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">智能问答</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">知识库</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⚑</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">工单中心</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">数据看板</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">门店虚拟导购台</text><text x="378.0" y="56.0" fill="#34D399" font-size="6.2" font-weight="normal" font-family="sans-serif" text-anchor="end">AI 在线</text><rect x="196.0" y="68.0" width="188.0" height="24.0" rx="8.0" fill="#1B2547" stroke="rgba(90,130,255,.34)" stroke-width="0.9"/><text x="204.0" y="83.0" fill="#CBD9F6" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">“想给爸妈换台拍照好的手机，预算 3000 左右”</text><rect x="112.0" y="98.0" width="246.0" height="48.0" rx="8.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="122.0" y="113.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">按需求已筛出 3 款在库机型：</text><text x="122.0" y="125.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">X100（影像旗舰）· Y78（长续航）· A2 Pro（护眼大屏）</text><text x="122.0" y="139.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">来源：在库机型表 · 3 项卖点库</text><rect x="112.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="151.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">对比这 3 款</text><rect x="196.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="235.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">有现货吗</text><rect x="280.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="319.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">转人工导购</text><rect x="112.0" y="182.0" width="208.0" height="26.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="122.0" y="199.0" fill="#647399" font-size="6.8" font-weight="normal" font-family="sans-serif" text-anchor="start">输入你的问题…</text><rect x="326.0" y="182.0" width="58.0" height="26.0" rx="8.0" fill="#FBBF24"/><text x="355.0" y="199.0" fill="#0A1024" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="middle">发送</text><rect x="112.0" y="216.0" width="272.0" height="14.0" rx="6.0" fill="#121A38"/><text x="122.0" y="226.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">识别到高意向客户 → 已生成需求卡片，可一键转门店导购</text></svg>
+      <div class="vis-cap">工作台界面示意：门店虚拟导购台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>触点接待</div><div class="d">顾客扫码 / 进群 / 进店即自动欢迎，按历史消费给个性化问候</div></div><div class="mod"><div class="n"><span class="i">2</span>需求诊断</div><div class="d">对话锁定预算 / 用途 / 品牌偏好，生成一张“客户需求卡片”</div></div><div class="mod"><div class="n"><span class="i">3</span>智能推荐</div><div class="d">从在库机型里推 2–3 款并给对比与推荐理由，绝不推没货的</div></div><div class="mod"><div class="n"><span class="i">4</span>留资转线</div><div class="d">一键把需求卡片 + 推荐话术推给门店导购，无缝转人工跟进</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>到店/扫码触点</span><span class="ar">→</span><span>需求对话诊断</span><span class="ar">→</span><span>匹配在库机型</span><span class="ar">→</span><span>生成推荐话术</span><span class="ar">→</span><span>转门店导购</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>扣子创建导购 Bot，导入在库机型与卖点知识库</li><li><span class="k">2</span>配置需求诊断问题链与推荐规则（对接库存表）</li><li><span class="k">3</span>发布到门店群 / 二维码，接企业微信转人工</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v"><3秒</div><div class="k">咨询响应</div></div><div class="metric"><div class="v">+40%</div><div class="k">顾客决策效率</div></div><div class="metric"><div class="v">+25%</div><div class="k">复购率</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“到店无人接待、离店即断联”；目标写“响应 3 秒内、决策效率 +40%”；场景写“门店到店顾客接待与推荐”；工具写“扣子 Coze 智能体 + 企业微信”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://cnews.chinadaily.com.cn/a/202511/28/WS69294d65a310942cc4993ebc.html" target="_blank">中国移动能力中台 · AI 值守小店（决策效率 +40%、复购 +25%） <span class="arw">↗</span></a><a class="btn-link" href="https://www.coze.cn/store" target="_blank">扣子商店 · 逛公开导购/客服类作品 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case doubao">
+  <div class="case-head">
+    <div class="case-num">CASE 03</div>
+    <div class="case-title">
+      <h3>会员营销工作台 <span class="pill doubao">飞书 × 豆包</span></h3>
+      <div class="pain">💢 痛点：会员数据散在微信群 / 表格 / 系统里，谁该维护、该推什么，全靠人记。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：把“散落的会员数据”变成会自己找客户的营销中枢。</div>
+    </div>
+    <div class="tag-sub">零售门店 · 会员运营</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">会员营销运营台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#22D3EE26" stroke="#22D3EE" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#22D3EE" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#22D3EE" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#22D3EE" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">数据看板</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⚑</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">预警中心</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⇄</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">调拨建议</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">报表导出</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">会员营销运营台</text><text x="378.0" y="56.0" fill="#647399" font-size="6.2" font-weight="normal" font-family="sans-serif" text-anchor="end">实时刷新</text><rect x="112.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="122.0" y="88.0" fill="#22D3EE" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">1,286</text><text x="122.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">有效会员</text><rect x="204.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="214.0" y="88.0" fill="#22D3EE" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">+40%</text><text x="214.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">复购率</text><rect x="296.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="306.0" y="88.0" fill="#22D3EE" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">312</text><text x="306.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">待触达</text><rect x="112.0" y="112.0" width="178.0" height="84.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="122.0" y="126.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">近 6 月复购走势</text><rect x="128.0" y="160.0" width="15.0" height="26.0" rx="3.0" fill="#22D3EE" opacity="0.55"/><rect x="155.0" y="146.0" width="15.0" height="40.0" rx="3.0" fill="#22D3EE" opacity="0.85"/><rect x="182.0" y="166.0" width="15.0" height="20.0" rx="3.0" fill="#22D3EE" opacity="0.55"/><rect x="209.0" y="136.0" width="15.0" height="50.0" rx="3.0" fill="#22D3EE" opacity="0.85"/><rect x="236.0" y="152.0" width="15.0" height="34.0" rx="3.0" fill="#22D3EE" opacity="0.55"/><rect x="263.0" y="142.0" width="15.0" height="44.0" rx="3.0" fill="#22D3EE" opacity="0.85"/><line x1="122" y1="186" x2="282" y2="186" stroke="rgba(122,150,255,.3)" stroke-width="0.8"/><rect x="296.0" y="112.0" width="88.0" height="84.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="304.0" y="126.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">重点关注</text><circle cx="308" cy="138" r="2.6" fill="#34D399"/><text x="315.0" y="140.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">82 人待维护</text><circle cx="308" cy="152" r="2.6" fill="#FBBF24"/><text x="315.0" y="154.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">147 人待唤醒</text><circle cx="308" cy="166" r="2.6" fill="#FB7185"/><text x="315.0" y="168.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">31 人紧急</text><circle cx="308" cy="180" r="2.6" fill="#22D3EE"/><text x="315.0" y="182.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">52 人节点推</text><rect x="112.0" y="202.0" width="272.0" height="28.0" rx="7.0" fill="#22D3EE26" stroke="#22D3EE" stroke-width="0.8"/><text x="122.0" y="220.0" fill="#EAF0FF" font-size="6.8" font-weight="normal" font-family="sans-serif" text-anchor="start">AI 已生成 3 组节点文案与海报，审批后将在周五 19:00 自动触达</text></svg>
+      <div class="vis-cap">工作台界面示意：会员营销运营台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>会员画像</div><div class="d">消费记录自动打标签（价格敏感 / 品牌忠诚 / 礼品场景…）</div></div><div class="mod"><div class="n"><span class="i">2</span>分层运营</div><div class="d">自动分群：高价值 / 沉睡 / 流失预警，不同人不同策略</div></div><div class="mod"><div class="n"><span class="i">3</span>内容工厂</div><div class="d">AI 一键生成文案、海报、朋友圈与短视频脚本</div></div><div class="mod"><div class="n"><span class="i">4</span>触达复盘</div><div class="d">定时推送 + 打开 / 复购数据回流，效果可追踪</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>会员数据归集</span><span class="ar">→</span><span>自动打标分层</span><span class="ar">→</span><span>AI 生成内容</span><span class="ar">→</span><span>定时分批触达</span><span class="ar">→</span><span>效果回流优化</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>飞书多维表格汇总会员消费数据并自动打标签</li><li><span class="k">2</span>豆包 / WorkBuddy 按分群生成差异化文案与海报</li><li><span class="k">3</span>多维表格设置定时提醒，企微群 / 朋友圈批量触达</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">+40%</div><div class="k">复购率</div></div><div class="metric"><div class="v">10倍</div><div class="k">内容产出效率</div></div><div class="metric"><div class="v">0漏推</div><div class="k">会员跟进</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“会员数据散乱、触达靠人记”；目标写“复购率 +40%、内容产出 10 倍”；场景写“会员分层运营与节点营销”；工具写“飞书多维表格 + 豆包”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://365.wps.cn/content/53ab07f929a3402a95b509e4ca7d1920.html" target="_blank">WPS 365 服装电商案例（复购率 +40%、库存 0 超卖） <span class="arw">↗</span></a><a class="btn-link" href="https://hi.tobacco.gov.cn/50/138871.html" target="_blank">零售小店 AI 会员管理实践（霍邱便利店） <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case feishu">
+  <div class="case-head">
+    <div class="case-num">CASE 04</div>
+    <div class="case-title">
+      <h3>智能库存预警工作台 <span class="pill feishu">飞书 × WorkBuddy</span></h3>
+      <div class="pain">💢 痛点：补货全凭经验，要么囤货卖不掉、要么断货丢客户；门店间调拨靠打电话。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：让“该补的自动提醒、该清的自动预警”，库存从拍脑袋变看数据。</div>
+    </div>
+    <div class="tag-sub">零售门店 · 进销存</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">库存预警与调拨台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#3370FF" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#3370FF" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#3370FF" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">数据看板</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⚑</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">预警中心</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⇄</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">调拨建议</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">报表导出</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">库存预警与调拨台</text><text x="378.0" y="56.0" fill="#647399" font-size="6.2" font-weight="normal" font-family="sans-serif" text-anchor="end">实时刷新</text><rect x="112.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="122.0" y="88.0" fill="#3370FF" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">3,412</text><text x="122.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">在库 SKU</text><rect x="204.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="214.0" y="88.0" fill="#3370FF" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">17</text><text x="214.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">缺货预警</text><rect x="296.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="306.0" y="88.0" fill="#3370FF" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">9</text><text x="306.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">积压预警</text><rect x="112.0" y="112.0" width="178.0" height="84.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="122.0" y="126.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">未来 2 周需求预测</text><rect x="128.0" y="160.0" width="15.0" height="26.0" rx="3.0" fill="#3370FF" opacity="0.55"/><rect x="155.0" y="146.0" width="15.0" height="40.0" rx="3.0" fill="#3370FF" opacity="0.85"/><rect x="182.0" y="166.0" width="15.0" height="20.0" rx="3.0" fill="#3370FF" opacity="0.55"/><rect x="209.0" y="136.0" width="15.0" height="50.0" rx="3.0" fill="#3370FF" opacity="0.85"/><rect x="236.0" y="152.0" width="15.0" height="34.0" rx="3.0" fill="#3370FF" opacity="0.55"/><rect x="263.0" y="142.0" width="15.0" height="44.0" rx="3.0" fill="#3370FF" opacity="0.85"/><line x1="122" y1="186" x2="282" y2="186" stroke="rgba(122,150,255,.3)" stroke-width="0.8"/><rect x="296.0" y="112.0" width="88.0" height="84.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="304.0" y="126.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">重点关注</text><circle cx="308" cy="138" r="2.6" fill="#FB7185"/><text x="315.0" y="140.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">X100 仅剩 3 台</text><circle cx="308" cy="152" r="2.6" fill="#FBBF24"/><text x="315.0" y="154.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">Y78 超 90 天</text><circle cx="308" cy="166" r="2.6" fill="#22D3EE"/><text x="315.0" y="168.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">A 店调 20 台至 B 店</text><circle cx="308" cy="180" r="2.6" fill="#34D399"/><text x="315.0" y="182.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">已生成采购单</text><rect x="112.0" y="202.0" width="272.0" height="28.0" rx="7.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.8"/><text x="122.0" y="220.0" fill="#EAF0FF" font-size="6.8" font-weight="normal" font-family="sans-serif" text-anchor="start">触发 17 条缺货预警 → 已自动 @采购并生成补货清单</text></svg>
+      <div class="vis-cap">工作台界面示意：库存预警与调拨台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>库存看板</div><div class="d">门店 / 仓库库存实时汇总，缺货与积压一屏可见</div></div><div class="mod"><div class="n"><span class="i">2</span>智能预测</div><div class="d">结合历史销量 + 季节 + 促销节点，预测未来 1–2 周需求</div></div><div class="mod"><div class="n"><span class="i">3</span>自动预警</div><div class="d">低于安全库存自动通知采购，积压自动推促销建议</div></div><div class="mod"><div class="n"><span class="i">4</span>调拨建议</div><div class="d">门店间库存不均时，自动给出调拨方案</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>进销存数据</span><span class="ar">→</span><span>AI 需求预测</span><span class="ar">→</span><span>自动预警触发</span><span class="ar">→</span><span>生成补货/促销建议</span><span class="ar">→</span><span>一键推送采购</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>飞书多维表格搭建进销存底表，接入各门店数据</li><li><span class="k">2</span>WorkBuddy 按历史数据做需求预测与安全库存计算</li><li><span class="k">3</span>自动化规则：触发阈值即 @采购 / 生成调拨单</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">-60%</div><div class="k">缺货率</div></div><div class="metric"><div class="v">×1倍</div><div class="k">库存周转</div></div><div class="metric"><div class="v">0超卖</div><div class="k">库存准确</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“补货凭经验、频繁缺货 / 积压”；目标写“缺货率 -60%、周转翻倍”；场景写“门店库存预警与调拨”；工具写“飞书多维表格 + WorkBuddy 数据分析”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://cnews.chinadaily.com.cn/a/202511/28/WS69294d65a310942cc4993ebc.html" target="_blank">中国移动 AI 值守小店（缺货率 -60%、周转提升） <span class="arw">↗</span></a><a class="btn-link" href="https://www.feishu.cn/product/base" target="_blank">飞书多维表格 · 智能分析能力 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case coze">
+  <div class="case-head">
+    <div class="case-num">CASE 05</div>
+    <div class="case-title">
+      <h3>AI 客服工作台 <span class="pill coze">扣子 Coze</span></h3>
+      <div class="pain">💢 痛点：微信 / 抖音 / 门店群消息散落多处，重复问题占大半，一个人守不过来。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：重复问题 AI 秒回，复杂问题精准转人工，服务不掉线。</div>
+    </div>
+    <div class="tag-sub">渠道 · 售前售后</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">售前售后应答台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#FBBF24" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#FBBF24" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#FBBF24" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◍</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">智能问答</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">知识库</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⚑</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">工单中心</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">数据看板</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">售前售后应答台</text><text x="378.0" y="56.0" fill="#34D399" font-size="6.2" font-weight="normal" font-family="sans-serif" text-anchor="end">AI 在线</text><rect x="196.0" y="68.0" width="188.0" height="24.0" rx="8.0" fill="#1B2547" stroke="rgba(90,130,255,.34)" stroke-width="0.9"/><text x="204.0" y="83.0" fill="#CBD9F6" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">“上周买的手机屏幕有亮点，能退吗？”</text><rect x="112.0" y="98.0" width="246.0" height="48.0" rx="8.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="122.0" y="113.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">可以：7 天内质量问题支持换新，凭发票办理。</text><text x="122.0" y="125.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">已为您调取订单 #20260512 与附近门店信息。</text><text x="122.0" y="139.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">来源：《售后政策》第 2.3 条</text><rect x="112.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="151.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">如何换新</text><rect x="196.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="235.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">门店地址</text><rect x="280.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="319.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">转人工</text><rect x="112.0" y="182.0" width="208.0" height="26.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="122.0" y="199.0" fill="#647399" font-size="6.8" font-weight="normal" font-family="sans-serif" text-anchor="start">输入你的问题…</text><rect x="326.0" y="182.0" width="58.0" height="26.0" rx="8.0" fill="#FBBF24"/><text x="355.0" y="199.0" fill="#0A1024" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="middle">发送</text><rect x="112.0" y="216.0" width="272.0" height="14.0" rx="6.0" fill="#121A38"/><text x="122.0" y="226.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">识别到售后诉求 → 已生成工单并推送至对应门店，跟进到底</text></svg>
+      <div class="vis-cap">工作台界面示意：售前售后应答台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>多渠道接入</div><div class="d">微信 / 抖音 / 飞书 / 门店群消息统一进一个工作台</div></div><div class="mod"><div class="n"><span class="i">2</span>知识应答</div><div class="d">对接产品与售后知识库，秒级给出标准答复并附出处</div></div><div class="mod"><div class="n"><span class="i">3</span>情绪升级</div><div class="d">识别情绪激动客户，自动升级并推送安抚话术</div></div><div class="mod"><div class="n"><span class="i">4</span>工单闭环</div><div class="d">未解决问题自动建单派单，跟进到底不丢单</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>多渠道消息</span><span class="ar">→</span><span>AI 应答命中</span><span class="ar">→</span><span>情绪/复杂度判定</span><span class="ar">→</span><span>转人工或建工单</span><span class="ar">→</span><span>复盘沉淀</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>扣子 Bot 导入售后知识库与常见问题</li><li><span class="k">2</span>配置转人工规则与情绪关键词</li><li><span class="k">3</span>接企业微信 / 抖音私信，工单回写表格</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">62%</div><div class="k">提问自动化率</div></div><div class="metric"><div class="v">14h→47s</div><div class="k">响应时间</div></div><div class="metric"><div class="v">3.2→4.5</div><div class="k">满意度</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“多平台消息分散、重复问题多”；目标写“自动化率 60%+、响应秒级”；场景写“售前咨询与售后答疑”；工具写“扣子 Coze + 企业微信”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://simo-online.com/en/blog/ki-kundenservice-chatbots-voice-ai-2026" target="_blank">AI 客服升级实践（SIMO 电商案例：自动化率 62%） <span class="arw">↗</span></a><a class="btn-link" href="https://dbc.gov.taipei/Knowledge/News/Detail/10088" target="_blank">台湾经济新报 AI 客服（释放 83% 人力） <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case coze">
+  <div class="case-head">
+    <div class="case-num">CASE 06</div>
+    <div class="case-title">
+      <h3>产品知识库工作台 <span class="pill coze">扣子 Coze</span></h3>
+      <div class="pain">💢 痛点：产品手册 / 培训稿 / FAQ 各存一处，新品一上旧资料就混，回答全靠记忆加翻文件。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：让产品资料变成全员“随问随答、答案有出处”的产品外脑。</div>
+    </div>
+    <div class="tag-sub">全员 · 产品问答</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">产品知识库问答台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#FBBF24" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#FBBF24" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#FBBF24" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◍</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">智能问答</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">知识库</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⚑</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">工单中心</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">数据看板</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">产品知识库问答台</text><text x="378.0" y="56.0" fill="#34D399" font-size="6.2" font-weight="normal" font-family="sans-serif" text-anchor="end">AI 在线</text><rect x="196.0" y="68.0" width="188.0" height="24.0" rx="8.0" fill="#1B2547" stroke="rgba(90,130,255,.34)" stroke-width="0.9"/><text x="204.0" y="83.0" fill="#CBD9F6" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">“X100 和 Y78 的影像差在哪？该推哪款？”</text><rect x="112.0" y="98.0" width="246.0" height="48.0" rx="8.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="122.0" y="113.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">X100 主摄 1 英寸大底 + 潜望长焦，夜拍与远景更强；</text><text x="122.0" y="125.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">Y78 主打长续航。拍照优先推 X100，续航优先推 Y78。</text><text x="122.0" y="139.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">来源：《X100 手册》P12 /《Y78 手册》P9</text><rect x="112.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="151.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">对比参数</text><rect x="196.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="235.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">话术怎么说</text><rect x="280.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="319.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">看新品</text><rect x="112.0" y="182.0" width="208.0" height="26.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="122.0" y="199.0" fill="#647399" font-size="6.8" font-weight="normal" font-family="sans-serif" text-anchor="start">输入你的问题…</text><rect x="326.0" y="182.0" width="58.0" height="26.0" rx="8.0" fill="#FBBF24"/><text x="355.0" y="199.0" fill="#0A1024" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="middle">发送</text><rect x="112.0" y="216.0" width="272.0" height="14.0" rx="6.0" fill="#121A38"/><text x="122.0" y="226.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">回答均附原文出处，新品上线自动推送要点，杜绝“凭记忆答错”</text></svg>
+      <div class="vis-cap">工作台界面示意：产品知识库问答台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>资料归集</div><div class="d">手册 / 培训稿 / FAQ 一键入库，按机型打标签</div></div><div class="mod"><div class="n"><span class="i">2</span>智能问答</div><div class="d">对话式提问，答案附带原文出处，杜绝编答案</div></div><div class="mod"><div class="n"><span class="i">3</span>新品速递</div><div class="d">新品上市自动推送要点，并对比老款差异</div></div><div class="mod"><div class="n"><span class="i">4</span>版本管理</div><div class="d">新品上线、旧品作废一键切换，防止新旧混淆</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>资料入库</span><span class="ar">→</span><span>分段打标</span><span class="ar">→</span><span>问答命中</span><span class="ar">→</span><span>缺口分析</span><span class="ar">→</span><span>反向补充资料</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>扣子知识库上传手册、话术、FAQ 并结构化分段</li><li><span class="k">2</span>设定回答口径与引用规则，测试高频问题</li><li><span class="k">3</span>发布到飞书 / 豆包，员工随时提问</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">7×24</div><div class="k">随问随答</div></div><div class="metric"><div class="v">-80%</div><div class="k">重复咨询</div></div><div class="metric"><div class="v">口径统一</div><div class="k">答案一致</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“资料散乱、新品旧品混淆”；目标写“重复咨询 -80%、口径统一”；场景写“产品答疑与新品推介”；工具写“扣子 Coze 知识库”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://www.shushangyun.com/article-44976.html" target="_blank">家电行业 AI 售后知识库智能体（数商云实战） <span class="arw">↗</span></a><a class="btn-link" href="https://m.shushangyun.com/article-41245.html" target="_blank">AI 知识库全场景落地（研发调研 2 周→2 天） <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+</section>
+<section id="group">
+  <div class="sec-head">
+    <span class="sec-no" style="color:#A855F7;border-color:#A855F755;background:#A855F712">职能</span>
+    <div>
+      <div class="sec-title">职能支撑线 <span class="u">6 个 AI 工作台</span></div>
+      <div class="sec-desc">让人效翻倍的“省心”工作台。每个案例都拆成了「核心模块 → 数据链路 → 搭建路径 → 效果 → 报名表映射」五段，照着抄即可。</div>
+    </div>
+  </div>
+  <div class="idx-row"><a class="idx-item" href="#case7"><span class="no">07</span>员工助手工作台<em>飞书</em></a><a class="idx-item" href="#case8"><span class="no">08</span>AI 培训导师工作台<em>WorkBuddy</em></a><a class="idx-item" href="#case9"><span class="no">09</span>AI 做课工作台<em>WorkBuddy</em></a><a class="idx-item" href="#case10"><span class="no">10</span>AI 面试官工作台<em>扣子 Coze</em></a><a class="idx-item" href="#case11"><span class="no">11</span>绩效管理工作台<em>飞书</em></a><a class="idx-item" href="#case12"><span class="no">12</span>财务智能工作台<em>豆包</em></a></div>
+  
+<div class="case feishu">
+  <div class="case-head">
+    <div class="case-num">CASE 07</div>
+    <div class="case-title">
+      <h3>员工助手工作台 <span class="pill feishu">飞书 aily</span></h3>
+      <div class="pain">💢 痛点：年假怎么算、怎么报销、证明怎么开——HR 每天被同样的问题淹没。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：员工自助解决 80% 常规问题，HR 只处理“例外”。</div>
+    </div>
+    <div class="tag-sub">HR · 员工服务</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">员工服务助手台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#3370FF" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#3370FF" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#3370FF" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◍</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">智能问答</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">知识库</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⚑</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">工单中心</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">数据看板</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">员工服务助手台</text><text x="378.0" y="56.0" fill="#34D399" font-size="6.2" font-weight="normal" font-family="sans-serif" text-anchor="end">AI 在线</text><rect x="196.0" y="68.0" width="188.0" height="24.0" rx="8.0" fill="#1B2547" stroke="rgba(90,130,255,.34)" stroke-width="0.9"/><text x="204.0" y="83.0" fill="#CBD9F6" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">“下周三要请 3 天事假，怎么弄？”</text><rect x="112.0" y="98.0" width="246.0" height="48.0" rx="8.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.9"/><text x="122.0" y="113.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">年假 / 事假均在飞书「假勤」提交，直属主管审批。</text><text x="122.0" y="125.0" fill="#EAF0FF" font-size="7.3" font-weight="normal" font-family="sans-serif" text-anchor="start">已为你附上申请入口，3 分钟可完成。</text><text x="122.0" y="139.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">来源：《假勤管理制度》2026 版</text><rect x="112.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="151.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">年假怎么算</text><rect x="196.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="235.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">报销流程</text><rect x="280.0" y="154.0" width="78.0" height="18.0" rx="9.0" fill="#121A38" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="319.0" y="166.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="middle">转 HR</text><rect x="112.0" y="182.0" width="208.0" height="26.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.28)" stroke-width="0.9"/><text x="122.0" y="199.0" fill="#647399" font-size="6.8" font-weight="normal" font-family="sans-serif" text-anchor="start">输入你的问题…</text><rect x="326.0" y="182.0" width="58.0" height="26.0" rx="8.0" fill="#3370FF"/><text x="355.0" y="199.0" fill="#0A1024" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="middle">发送</text><rect x="112.0" y="216.0" width="272.0" height="14.0" rx="6.0" fill="#121A38"/><text x="122.0" y="226.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">80% 的常规咨询在此自助解决，HR 只处理例外与个性化诉求</text></svg>
+      <div class="vis-cap">工作台界面示意：员工服务助手台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>制度问答</div><div class="d">年假 / 报销 / 考勤 / 证明，秒回且直接附办理入口</div></div><div class="mod"><div class="n"><span class="i">2</span>流程直达</div><div class="d">问“怎么请假”直接给出申请链接，不用再翻文档</div></div><div class="mod"><div class="n"><span class="i">3</span>员工服务台</div><div class="d">个性化诉求工单式承接，自动派给对应 HR</div></div><div class="mod"><div class="n"><span class="i">4</span>高频看板</div><div class="d">高频问题 Top10 反哺制度与流程优化</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>员工提问</span><span class="ar">→</span><span>知识库应答</span><span class="ar">→</span><span>附办理入口</span><span class="ar">→</span><span>复杂问题派单</span><span class="ar">→</span><span>高频问题回流</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>飞书 aily / 知识库导入制度、流程、常见问答</li><li><span class="k">2</span>配置“回答即附入口”的链接规则</li><li><span class="k">3</span>发布到飞书工作台，员工随时自助提问</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">80%</div><div class="k">咨询自动拦截</div></div><div class="metric"><div class="v">秒级</div><div class="k">回复速度</div></div><div class="metric"><div class="v">聚焦</div><div class="k">HR 转向战略工作</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“HR 被重复问题淹没”；目标写“拦截 80% 基础咨询”；场景写“员工制度咨询与流程指引”；工具写“飞书 aily 工作助手”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://m.shushangyun.com/article-41245.html" target="_blank">H 集团“超级 HR”智能问答（拦截 80% 咨询） <span class="arw">↗</span></a><a class="btn-link" href="https://www.feishu.cn/product/aily" target="_blank">飞书 aily · 企业级智能伙伴 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case wb">
+  <div class="case-head">
+    <div class="case-num">CASE 08</div>
+    <div class="case-title">
+      <h3>AI 培训导师工作台 <span class="pill wb">WorkBuddy × 飞书</span></h3>
+      <div class="pain">💢 痛点：集中培训“一刀切”，讲完就忘、考完就丢，谁没学会没人跟。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：从“统一讲课”到“因材施教”，7×24 有人在旁边陪练、答疑、盯进度。</div>
+    </div>
+    <div class="tag-sub">培训 · 因材施教</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 培训导师台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#A855F726" stroke="#A855F7" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#A855F7" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#A855F7" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#A855F7" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">素材管理</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">✦</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">AI 生成</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⇄</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">翻译配音</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">成果归档</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 培训导师台</text><rect x="112.0" y="68.0" width="118.0" height="138.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.18)" stroke-width="0.9"/><text x="120.0" y="82.0" fill="#CBD9F6" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">① 素材 / 输入</text><rect x="120.0" y="87.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="99.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">① 产品培训资料</text><rect x="120.0" y="109.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="121.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">② 新品卖点文档</text><rect x="120.0" y="131.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="143.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">③ 历史考试题库</text><rect x="120.0" y="153.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="165.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">④ 优秀话术案例</text><rect x="120.0" y="186.0" width="102.0" height="16.0" rx="5.0" fill="#1B2547" stroke="#A855F7" stroke-width="0.8"/><text x="171.0" y="197.0" fill="#A855F7" font-size="6.4" font-weight="bold" font-family="sans-serif" text-anchor="middle">＋ 导入素材</text><rect x="238.0" y="68.0" width="146.0" height="138.0" rx="8.0" fill="#121A38" stroke="#A855F7" stroke-width="0.9"/><text x="246.0" y="82.0" fill="#A855F7" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">② 生成结果</text><rect x="246.0" y="90.0" width="130.0" height="20.0" rx="6.0" fill="#A855F726"/><text x="252.0" y="104.0" fill="#EAF0FF" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">已生成 28 人个性学习路径</text><text x="246.0" y="124.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 12 人：产品知识待补强</text><text x="246.0" y="138.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 9 人：异议处理需陪练</text><text x="246.0" y="152.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 7 人：已达上岗标准</text><rect x="246.0" y="170.0" width="130.0" height="24.0" rx="6.0" fill="#A855F7"/><text x="311.0" y="185.0" fill="#0A1024" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="middle">开始陪练 →</text><rect x="112.0" y="214.0" width="272.0" height="16.0" rx="6.0" fill="#121A38"/><text x="122.0" y="225.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">成果自动归档到云端，团队随取随用</text></svg>
+      <div class="vis-cap">工作台界面示意：AI 培训导师台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>学情诊断</div><div class="d">摸底测试定位每个人的知识盲区，别再做无效培训</div></div><div class="mod"><div class="n"><span class="i">2</span>个性路径</div><div class="d">按盲区自动生成学习路径与推荐课程</div></div><div class="mod"><div class="n"><span class="i">3</span>陪练答疑</div><div class="d">随时提问、随时讲解、随堂小测，像有私人教练</div></div><div class="mod"><div class="n"><span class="i">4</span>效果追踪</div><div class="d">学习进度 + 考试成绩自动归档，一键出培训报告</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>摸底测评</span><span class="ar">→</span><span>盲区诊断</span><span class="ar">→</span><span>生成学习路径</span><span class="ar">→</span><span>陪练答疑</span><span class="ar">→</span><span>复测出报告</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>WorkBuddy 读取培训资料与题库，生成摸底测评</li><li><span class="k">2</span>按测评结果自动匹配学习路径与练习题</li><li><span class="k">3</span>数据回写飞书表格，输出个人 / 团队培训报告</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">-50%</div><div class="k">培训周期</div></div><div class="metric"><div class="v">↑合格率</div><div class="k">知识掌握</div></div><div class="metric"><div class="v">7×24</div><div class="k">随时可学</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“培训一刀切、效果难追踪”；目标写“培训周期 -50%、合格率提升”；场景写“新员工 / 新品培训陪练”；工具写“WorkBuddy + 飞书”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://m.bjnews.com.cn/detail/1743142294129811.html" target="_blank">小米零售 AI 数字人教练（合格率 30%→90%） <span class="arw">↗</span></a><a class="btn-link" href="https://www.51ima.com/news/11569.html" target="_blank">AI 陪练“学—练—考—评”一体化 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case wb">
+  <div class="case-head">
+    <div class="case-num">CASE 09</div>
+    <div class="case-title">
+      <h3>AI 做课工作台 <span class="pill wb">WorkBuddy</span></h3>
+      <div class="pain">💢 痛点：做一门课要 2–3 天，逐字稿、PPT、配音、翻译全手工，海外版更是遥遥无期。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：把“3 天做一门课”变成“3 小时出初稿”，多语言版本同步产出。</div>
+    </div>
+    <div class="tag-sub">培训 · 课程生产</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 做课生产线</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#A855F726" stroke="#A855F7" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#A855F7" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#A855F7" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#A855F7" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">素材管理</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">✦</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">AI 生成</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⇄</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">翻译配音</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">成果归档</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 做课生产线</text><rect x="112.0" y="68.0" width="118.0" height="138.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.18)" stroke-width="0.9"/><text x="120.0" y="82.0" fill="#CBD9F6" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">① 素材 / 输入</text><rect x="120.0" y="87.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="99.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">① 讲师录音.mp3</text><rect x="120.0" y="109.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="121.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">② 培训逐字稿.docx</text><rect x="120.0" y="131.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="143.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">③ 旧版课件.pptx</text><rect x="120.0" y="153.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="165.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">④ 大纲草稿</text><rect x="120.0" y="186.0" width="102.0" height="16.0" rx="5.0" fill="#1B2547" stroke="#A855F7" stroke-width="0.8"/><text x="171.0" y="197.0" fill="#A855F7" font-size="6.4" font-weight="bold" font-family="sans-serif" text-anchor="middle">＋ 导入素材</text><rect x="238.0" y="68.0" width="146.0" height="138.0" rx="8.0" fill="#121A38" stroke="#A855F7" stroke-width="0.9"/><text x="246.0" y="82.0" fill="#A855F7" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">② 生成结果</text><rect x="246.0" y="90.0" width="130.0" height="20.0" rx="6.0" fill="#A855F726"/><text x="252.0" y="104.0" fill="#EAF0FF" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">《新品销售速成》初稿已就绪</text><text x="246.0" y="124.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 大纲 5 章 / 讲稿 3200 字</text><text x="246.0" y="138.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· PPT 初稿 24 页</text><text x="246.0" y="152.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 英文版 + 数字人配音</text><rect x="246.0" y="170.0" width="130.0" height="24.0" rx="6.0" fill="#A855F7"/><text x="311.0" y="185.0" fill="#0A1024" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="middle">导出并归档 →</text><rect x="112.0" y="214.0" width="272.0" height="16.0" rx="6.0" fill="#121A38"/><text x="122.0" y="225.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">成果自动归档到云端，团队随取随用</text></svg>
+      <div class="vis-cap">工作台界面示意：AI 做课生产线</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>素材汇聚</div><div class="d">录音 / 逐字稿 / 旧课件一键导入，自动转文字</div></div><div class="mod"><div class="n"><span class="i">2</span>智能成稿</div><div class="d">自动提炼大纲、生成讲稿与 PPT 初稿</div></div><div class="mod"><div class="n"><span class="i">3</span>多语配音</div><div class="d">一键翻译 + 数字人配音，海外版同步产出</div></div><div class="mod"><div class="n"><span class="i">4</span>课件库管理</div><div class="d">版本与素材统一归档，随取随用</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>素材导入</span><span class="ar">→</span><span>AI 提炼大纲</span><span class="ar">→</span><span>生成讲稿/PPT</span><span class="ar">→</span><span>翻译配音</span><span class="ar">→</span><span>归档发布</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>WorkBuddy 导入录音或逐字稿，自动转文字</li><li><span class="k">2</span>一句话生成课程大纲、讲稿与 PPT 初稿</li><li><span class="k">3</span>生成多语版本并归档到飞书云文档</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">10倍</div><div class="k">课件产出效率</div></div><div class="metric"><div class="v">多语同步</div><div class="k">海外版</div></div><div class="metric"><div class="v">标准化</div><div class="k">资料统一</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“做课耗时、海外版难产”；目标写“效率 10 倍、多语同步”；场景写“内训课程开发与海外培训”；工具写“WorkBuddy 生成 + 飞书云文档归档”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://www.workbuddy.cn" target="_blank">北森 AI 做课助手（逐字稿转英文 + 数字人授课） <span class="arw">↗</span></a><a class="btn-link" href="https://www.workbuddy.cn" target="_blank">WorkBuddy 官网 · 能力介绍 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case coze">
+  <div class="case-head">
+    <div class="case-num">CASE 10</div>
+    <div class="case-title">
+      <h3>AI 面试官工作台 <span class="pill coze">扣子 Coze × 飞书</span></h3>
+      <div class="pain">💢 痛点：简历看不过来、初面排不完，不同面试官标准不一，好苗子容易被漏掉。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：简历到首面全自动跑一遍，HR 只看“进了前十”的人。</div>
+    </div>
+    <div class="tag-sub">HR · 招聘初筛</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">招聘初筛工作台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#FBBF24" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#FBBF24" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#FBBF24" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◍</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">对练/面试</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">◇</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">能力档案</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">话术/题库</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">成长看板</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">招聘初筛工作台</text><rect x="300.0" y="68.0" width="84.0" height="166.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.18)" stroke-width="0.9"/><text x="308.0" y="82.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">实时评分</text><text x="308.0" y="98.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">专业能力</text><text x="376.0" y="98.0" fill="#FBBF24" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">88</text><rect x="308.0" y="103.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="103.0" width="59.8" height="5.0" rx="3.0" fill="#FBBF24" opacity="0.9"/><text x="308.0" y="131.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">沟通表达</text><text x="376.0" y="131.0" fill="#FBBF24" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">81</text><rect x="308.0" y="136.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="136.0" width="55.1" height="5.0" rx="3.0" fill="#FBBF24" opacity="0.9"/><text x="308.0" y="164.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">逻辑思维</text><text x="376.0" y="164.0" fill="#FBBF24" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">85</text><rect x="308.0" y="169.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="169.0" width="57.8" height="5.0" rx="3.0" fill="#FBBF24" opacity="0.9"/><text x="308.0" y="197.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">岗位匹配</text><text x="376.0" y="197.0" fill="#FBBF24" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="end">79</text><rect x="308.0" y="202.0" width="68.0" height="5.0" rx="3.0" fill="#1B2547"/><rect x="308.0" y="202.0" width="53.7" height="5.0" rx="3.0" fill="#FBBF24" opacity="0.9"/><rect x="308.0" y="226.0" width="68.0" height="1.0" rx="0.0" fill="rgba(122,150,255,.2)"/><rect x="112.0" y="68.0" width="178.0" height="54.0" rx="8.0" fill="#FBBF2426" stroke="#FBBF24" stroke-width="0.9"/><text x="120.0" y="84.0" fill="#FBBF24" font-size="6.8" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 面试官 · 首轮</text><text x="120.0" y="98.0" fill="#EAF0FF" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">“请说说你上一份工作里最有成就的项目？”</text><text x="120.0" y="110.0" fill="#EAF0FF" font-size="7.2" font-weight="normal" font-family="sans-serif" text-anchor="start">考核维度：逻辑 / 表达 / 专业</text><rect x="180.0" y="130.0" width="110.0" height="26.0" rx="8.0" fill="#1B2547" stroke="rgba(90,130,255,.34)" stroke-width="0.9"/><text x="188.0" y="147.0" fill="#CBD9F6" font-size="6.9" font-weight="normal" font-family="sans-serif" text-anchor="start">“我主导过门店数字化改造…”</text><rect x="112.0" y="164.0" width="178.0" height="40.0" rx="8.0" fill="#121A38" stroke="rgba(122,150,255,.24)" stroke-width="0.9"/><text x="120.0" y="179.0" fill="#C4B5FD" font-size="6.8" font-weight="bold" font-family="sans-serif" text-anchor="start">AI 教练点评</text><text x="120.0" y="193.0" fill="#A9BBDD" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">候选人逻辑清晰，建议进入下一轮</text><text x="120.0" y="202.0" fill="#FBBF24" font-size="6.6" font-weight="normal" font-family="sans-serif" text-anchor="start">→ 建议再练 2 轮</text><rect x="112.0" y="212.0" width="272.0" height="18.0" rx="6.0" fill="#121A38"/><text x="122.0" y="224.0" fill="#8FA2C9" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">第 7 / 20 轮 · 剧本：旗舰机到店 · 无次数限制</text></svg>
+      <div class="vis-cap">工作台界面示意：招聘初筛工作台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>简历智筛</div><div class="d">按岗位胜任力模型自动解析、打分、排序</div></div><div class="mod"><div class="n"><span class="i">2</span>智能出题</div><div class="d">依据简历经历动态生成结构化面试题</div></div><div class="mod"><div class="n"><span class="i">3</span>AI 首面</div><div class="d">异步视频面试，多模态评估表达 / 逻辑 / 专业</div></div><div class="mod"><div class="n"><span class="i">4</span>评价报告</div><div class="d">输出结构化评分与建议，HR 只看 Top 候选人</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>简历解析</span><span class="ar">→</span><span>岗位匹配打分</span><span class="ar">→</span><span>动态生成题目</span><span class="ar">→</span><span>AI 视频首面</span><span class="ar">→</span><span>评估报告输出</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>扣子 Bot 配置岗位胜任力模型与评分规则</li><li><span class="k">2</span>导入简历库自动解析、打分、排序</li><li><span class="k">3</span>接视频面试工具，输出评估报告回写飞书表格</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">1-2周→2-3天</div><div class="k">初面周期</div></div><div class="metric"><div class="v">-50%~70%</div><div class="k">面试量</div></div><div class="metric"><div class="v">+50%</div><div class="k">HR 人效</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“简历量大、初面排不完”；目标写“初面周期缩至 2–3 天、面试量 -50%”；场景写“社招 / 校招初筛与首面”；工具写“扣子 Coze + 飞书多维表格”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://www.h3c.com/cn/INnovate360/Cases/SZYW/202409/2263571_858329_0.htm" target="_blank">新华三 AI 智能招聘（筛选工作量 -60%） <span class="arw">↗</span></a><a class="btn-link" href="https://www.cet.com.cn/zhpd/ncjr/10364342.shtml" target="_blank">常熟农商行 AI 面试官（初面周期 1–2 周→2–3 天） <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case feishu">
+  <div class="case-head">
+    <div class="case-num">CASE 11</div>
+    <div class="case-title">
+      <h3>绩效管理工作台 <span class="pill feishu">飞书 × WorkBuddy</span></h3>
+      <div class="pain">💢 痛点：月底填表、年底算分，过程数据全靠回忆，评语写得千篇一律。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：过程自动记录、结果一键生成，让绩效看得见、算得清、谈得动。</div>
+    </div>
+    <div class="tag-sub">HR · 绩效管理</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">绩效管理运营台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#3370FF" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#3370FF" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#3370FF" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">数据看板</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⚑</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">预警中心</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⇄</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">调拨建议</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">报表导出</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">绩效管理运营台</text><text x="378.0" y="56.0" fill="#647399" font-size="6.2" font-weight="normal" font-family="sans-serif" text-anchor="end">实时刷新</text><rect x="112.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="122.0" y="88.0" fill="#3370FF" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">86%</text><text x="122.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">目标达成率</text><rect x="204.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="214.0" y="88.0" fill="#3370FF" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">124</text><text x="214.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">在评人数</text><rect x="296.0" y="68.0" width="84.0" height="36.0" rx="7.0" fill="#121A38" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="306.0" y="88.0" fill="#3370FF" font-size="13.0" font-weight="bold" font-family="sans-serif" text-anchor="start">-70%</text><text x="306.0" y="99.0" fill="#93A4CB" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">核算耗时</text><rect x="112.0" y="112.0" width="178.0" height="84.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="122.0" y="126.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">各部门绩效得分分布</text><rect x="128.0" y="160.0" width="15.0" height="26.0" rx="3.0" fill="#3370FF" opacity="0.55"/><rect x="155.0" y="146.0" width="15.0" height="40.0" rx="3.0" fill="#3370FF" opacity="0.85"/><rect x="182.0" y="166.0" width="15.0" height="20.0" rx="3.0" fill="#3370FF" opacity="0.55"/><rect x="209.0" y="136.0" width="15.0" height="50.0" rx="3.0" fill="#3370FF" opacity="0.85"/><rect x="236.0" y="152.0" width="15.0" height="34.0" rx="3.0" fill="#3370FF" opacity="0.55"/><rect x="263.0" y="142.0" width="15.0" height="44.0" rx="3.0" fill="#3370FF" opacity="0.85"/><line x1="122" y1="186" x2="282" y2="186" stroke="rgba(122,150,255,.3)" stroke-width="0.8"/><rect x="296.0" y="112.0" width="88.0" height="84.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.16)" stroke-width="0.9"/><text x="304.0" y="126.0" fill="#CBD9F6" font-size="7.2" font-weight="bold" font-family="sans-serif" text-anchor="start">重点关注</text><circle cx="308" cy="138" r="2.6" fill="#FBBF24"/><text x="315.0" y="140.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">销售部 32 人</text><circle cx="308" cy="152" r="2.6" fill="#34D399"/><text x="315.0" y="154.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">运营部 11 人</text><circle cx="308" cy="166" r="2.6" fill="#22D3EE"/><text x="315.0" y="168.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">客服部 6 人</text><circle cx="308" cy="180" r="2.6" fill="#FB7185"/><text x="315.0" y="182.0" fill="#A9BBDD" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">3 人目标滞后</text><rect x="112.0" y="202.0" width="272.0" height="28.0" rx="7.0" fill="#3370FF26" stroke="#3370FF" stroke-width="0.8"/><text x="122.0" y="220.0" fill="#EAF0FF" font-size="6.8" font-weight="normal" font-family="sans-serif" text-anchor="start">过程数据已自动归集 → 一键生成 124 份评分与评语初稿</text></svg>
+      <div class="vis-cap">工作台界面示意：绩效管理运营台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>目标对齐</div><div class="d">OKR / KPI 在线对齐，进度实时可见</div></div><div class="mod"><div class="n"><span class="i">2</span>过程记录</div><div class="d">周报与项目数据自动归集到个人绩效档案</div></div><div class="mod"><div class="n"><span class="i">3</span>智能评估</div><div class="d">按规则自动算分 + 生成个性化评语初稿</div></div><div class="mod"><div class="n"><span class="i">4</span>面谈辅助</div><div class="d">生成绩效面谈要点与改进建议</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>目标设定</span><span class="ar">→</span><span>过程数据归集</span><span class="ar">→</span><span>自动算分</span><span class="ar">→</span><span>生成评语初稿</span><span class="ar">→</span><span>面谈改进</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>飞书多维表格建绩效台账，录入目标与权重</li><li><span class="k">2</span>周报 / 项目数据自动归集到个人档案</li><li><span class="k">3</span>WorkBuddy 按规则算分并生成评语初稿</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">-70%</div><div class="k">绩效核算时间</div></div><div class="metric"><div class="v">一键</div><div class="k">评语初稿</div></div><div class="metric"><div class="v">全程</div><div class="k">过程透明</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“绩效靠回忆、评语千篇一律”；目标写“核算时间 -70%、评语自动生成”；场景写“月度 / 季度绩效评估与面谈”；工具写“飞书多维表格 + WorkBuddy”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://www.feishu.cn/product/base" target="_blank">飞书多维表格 · 目标与绩效管理方案 <span class="arw">↗</span></a><a class="btn-link" href="https://www.workbuddy.cn" target="_blank">WorkBuddy · 数据分析与文本生成 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+<div class="case doubao">
+  <div class="case-head">
+    <div class="case-num">CASE 12</div>
+    <div class="case-title">
+      <h3>财务智能工作台 <span class="pill doubao">飞书 × 豆包</span></h3>
+      <div class="pain">💢 痛点：贴票、填单、对账、催款，重复又琐碎；报销单填错、发票不合规反复退。</div>
+      <div class="pain" style="color:#8FA2C9">🎯 目标：把重复财务活做成自动化流水线，人只处理异常。</div>
+    </div>
+    <div class="tag-sub">财务 · 报销与对账</div>
+  </div>
+  <div class="case-body">
+    <div class="case-visual">
+      <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif"><rect width="400" height="250" fill="#060A18"/><rect x="8.0" y="8.0" width="384.0" height="234.0" rx="11.0" fill="#0A1024" stroke="rgba(122,150,255,.34)" stroke-width="0.9"/><rect x="8.0" y="8.0" width="384.0" height="26.0" rx="11.0" fill="#121A38"/><rect x="8.0" y="22.0" width="384.0" height="12.0" rx="0.0" fill="#121A38"/><circle cx="22" cy="21" r="3.1" fill="#FB7185"/><circle cx="34" cy="21" r="3.1" fill="#FBBF24"/><circle cx="46" cy="21" r="3.1" fill="#34D399"/><text x="64.0" y="25.0" fill="#EDF2FF" font-size="8.6" font-weight="bold" font-family="sans-serif" text-anchor="start">财务智能处理台</text><rect x="300.0" y="15.0" width="84.0" height="13.0" rx="6.0" fill="#22D3EE26" stroke="#22D3EE" stroke-width="0.9"/><text x="342.0" y="24.0" fill="#22D3EE" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="middle">已运行</text><rect x="8.0" y="34.0" width="90.0" height="208.0" rx="0.0" fill="#0E1631"/><text x="18.0" y="50.0" fill="#647399" font-size="6.6" font-weight="bold" font-family="sans-serif" text-anchor="start">功能导航</text><rect x="14.0" y="53.0" width="78.0" height="20.0" rx="6.0" fill="#182346" stroke="#22D3EE" stroke-width="0.7"/><text x="20.0" y="67.0" fill="#22D3EE" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▤</text><text x="35.0" y="67.0" fill="#DCE6FF" font-size="7.4" font-weight="bold" font-family="sans-serif" text-anchor="start">素材管理</text><rect x="14.0" y="77.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="91.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">✦</text><text x="35.0" y="91.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">AI 生成</text><rect x="14.0" y="101.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="115.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">⇄</text><text x="35.0" y="115.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">翻译配音</text><rect x="14.0" y="125.0" width="78.0" height="20.0" rx="6.0" fill="none"/><text x="20.0" y="139.0" fill="#8FA2C9" font-size="8.4" font-weight="normal" font-family="sans-serif" text-anchor="start">▦</text><text x="35.0" y="139.0" fill="#A9BBDD" font-size="7.4" font-weight="normal" font-family="sans-serif" text-anchor="start">成果归档</text><rect x="14.0" y="214.0" width="78.0" height="22.0" rx="6.0" fill="#121A38" stroke="rgba(122,150,255,.22)" stroke-width="0.9"/><text x="20.0" y="228.0" fill="#34D399" font-size="6.4" font-weight="normal" font-family="sans-serif" text-anchor="start">● 数据已同步</text><rect x="104.0" y="34.0" width="288.0" height="208.0" rx="0.0" fill="#0C1329"/><rect x="112.0" y="42.0" width="272.0" height="20.0" rx="6.0" fill="#121A38"/><text x="120.0" y="56.0" fill="#EDF2FF" font-size="7.8" font-weight="bold" font-family="sans-serif" text-anchor="start">财务智能处理台</text><rect x="112.0" y="68.0" width="118.0" height="138.0" rx="8.0" fill="#0E1631" stroke="rgba(122,150,255,.18)" stroke-width="0.9"/><text x="120.0" y="82.0" fill="#CBD9F6" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">① 素材 / 输入</text><rect x="120.0" y="87.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="99.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">① 发票照片 ×32</text><rect x="120.0" y="109.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="121.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">② 报销单.csv</text><rect x="120.0" y="131.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="143.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">③ 银行流水.xlsx</text><rect x="120.0" y="153.0" width="102.0" height="17.0" rx="5.0" fill="#121A38" stroke="rgba(122,150,255,.2)" stroke-width="0.9"/><text x="127.0" y="165.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">④ 预算台账</text><rect x="120.0" y="186.0" width="102.0" height="16.0" rx="5.0" fill="#1B2547" stroke="#22D3EE" stroke-width="0.8"/><text x="171.0" y="197.0" fill="#22D3EE" font-size="6.4" font-weight="bold" font-family="sans-serif" text-anchor="middle">＋ 导入素材</text><rect x="238.0" y="68.0" width="146.0" height="138.0" rx="8.0" fill="#121A38" stroke="#22D3EE" stroke-width="0.9"/><text x="246.0" y="82.0" fill="#22D3EE" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">② 生成结果</text><rect x="246.0" y="90.0" width="130.0" height="20.0" rx="6.0" fill="#22D3EE26"/><text x="252.0" y="104.0" fill="#EAF0FF" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="start">已自动识别并填单 32 条</text><text x="246.0" y="124.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 28 条合规，直接入账</text><text x="246.0" y="138.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 3 条超预算，待审批</text><text x="246.0" y="152.0" fill="#A9BBDD" font-size="6.5" font-weight="normal" font-family="sans-serif" text-anchor="start">· 1 条发票异常，退回</text><rect x="246.0" y="170.0" width="130.0" height="24.0" rx="6.0" fill="#22D3EE"/><text x="311.0" y="185.0" fill="#0A1024" font-size="7.0" font-weight="bold" font-family="sans-serif" text-anchor="middle">一键对账 →</text><rect x="112.0" y="214.0" width="272.0" height="16.0" rx="6.0" fill="#121A38"/><text x="122.0" y="225.0" fill="#8FA2C9" font-size="6.3" font-weight="normal" font-family="sans-serif" text-anchor="start">成果自动归档到云端，团队随取随用</text></svg>
+      <div class="vis-cap">工作台界面示意：财务智能处理台</div>
+    </div>
+    <div class="case-right">
+      <div class="blk">
+        <div class="blk-h"><span class="tag">核心模块</span>一个工作台 = 多个功能模块协同</div>
+        <div class="mods"><div class="mod"><div class="n"><span class="i">1</span>智能报销</div><div class="d">拍照识票、自动填单、合规校验一次过</div></div><div class="mod"><div class="n"><span class="i">2</span>费控预警</div><div class="d">超预算自动提醒，异常报销自动标记</div></div><div class="mod"><div class="n"><span class="i">3</span>自动对账</div><div class="d">订单与流水自动匹配，差异一键定位</div></div><div class="mod"><div class="n"><span class="i">4</span>报表生成</div><div class="d">一键出经营 / 费用分析报表</div></div></div>
+      </div>
+      <div class="blk how">
+        <div class="blk-h"><span class="tag">数据链路</span>怎么闭环跑起来</div>
+        <div class="flow"><span>发票影像</span><span class="ar">→</span><span>OCR 识别</span><span class="ar">→</span><span>合规校验</span><span class="ar">→</span><span>自动入账/对账</span><span class="ar">→</span><span>报表输出</span></div>
+        <div class="steps-w" style="margin-top:12px">
+          <div class="blk-h" style="margin-bottom:8px"><span class="tag">怎么搭</span>3 步落地</div>
+          <ul class="steps"><li><span class="k">1</span>飞书多维表格建报销台账，设定合规规则</li><li><span class="k">2</span>豆包 / WorkBuddy 识别票据并自动填单校验</li><li><span class="k">3</span>自动化对账并生成费用分析报表</li></ul>
+        </div>
+      </div>
+      <div class="blk eff">
+        <div class="blk-h"><span class="tag">效果</span>可衡量的价值</div>
+        <div class="metrics"><div class="metric"><div class="v">-70%</div><div class="k">报销填单时间</div></div><div class="metric"><div class="v">3天→0.5天</div><div class="k">对账时间</div></div><div class="metric"><div class="v">自动</div><div class="k">异常拦截</div></div></div>
+      </div>
+      <div class="blk ref">
+        <div class="blk-h"><span class="tag">可借鉴</span>报名表怎么填</div>
+        <div class="ref-box">痛点写“贴票对账耗人、退单频繁”；目标写“填单 -70%、对账缩至半天”；场景写“费用报销与账务对账”；工具写“飞书多维表格 + 豆包”。</div>
+      </div>
+      <div class="link-row"><a class="btn-link" href="https://365.wps.cn/content/53ab07f929a3402a95b509e4ca7d1920.html" target="_blank">WPS 365 财税代理案例（对账 3 天→0.5 天） <span class="arw">↗</span></a><a class="btn-link" href="https://www.doubao.com" target="_blank">豆包 · 文档与表格处理能力 <span class="arw">↗</span></a></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section style="padding-top:20px">
+  <div class="sec-head">
+    <span class="sec-no">03</span>
+    <div>
+      <div class="sec-title">看懂工作台后，<span class="u">这样填报名表</span></div>
+      <div class="sec-desc">对照报名表的核心字段，用"普通写"和"优秀写"对比。工作台类项目尤其要把"模块"和"数据"讲清楚。</div>
+    </div>
+  </div>
+  <div class="form-guide">
+    <div class="fg-item">
+      <div class="h"><span class="idx">1</span>项目背景 / 痛点</div>
+      <div class="cmp">
+        <div class="bad"><span class="lb">✗ 普通：</span><span>提高工作效率，减少人工操作。</span></div>
+        <div class="good"><span class="lb">✓ 优秀：</span><span>新人销售靠师带徒要 3–6 个月才能独立接待，话术不统一、培训成本高，客户成了练兵场。</span></div>
+      </div>
+    </div>
+    <div class="fg-item">
+      <div class="h"><span class="idx">2</span>核心目标</div>
+      <div class="cmp">
+        <div class="bad"><span class="lb">✗ 普通：</span><span>用 AI 提升培训效果。</span></div>
+        <div class="good"><span class="lb">✓ 优秀：</span><span>把新人培养周期从 90 天缩短至 30 天，上岗合格率从 30% 提升至 90%。</span></div>
+      </div>
+    </div>
+    <div class="fg-item">
+      <div class="h"><span class="idx">3</span>适用场景 / 对象</div>
+      <div class="cmp">
+        <div class="bad"><span class="lb">✗ 普通：</span><span>门店员工。</span></div>
+        <div class="good"><span class="lb">✓ 优秀：</span><span>门店新入职销售上岗前训练，以及在职销售新品话术演练，每人每周练习不少于 3 次。</span></div>
+      </div>
+    </div>
+    <div class="fg-item">
+      <div class="h"><span class="idx">4</span>使用方式（工作台怎么跑）</div>
+      <div class="cmp">
+        <div class="bad"><span class="lb">✗ 普通：</span><span>用 AI 自动生成。</span></div>
+        <div class="good"><span class="lb">✓ 优秀：</span><span>多维表格录入能力模型 → AI 剧本对练 → 实时评分 → 短板自动推送复练，数据回写成长档案。</span></div>
+      </div>
+    </div>
+    <div class="fg-item" style="grid-column:1/-1">
+      <div class="h"><span class="idx">5</span>拟使用的 AI 工具</div>
+      <div class="cmp">
+        <div class="bad"><span class="lb">✗ 普通：</span><span>AI 大模型。</span></div>
+        <div class="good"><span class="lb">✓ 优秀：</span><span>飞书多维表格（数据与流程）+ 扣子 Coze（AI 对练与评分）。<b style="color:#FCD34D">—— 写清"工具组合"与"现在就能用"，是工作台类项目的关键加分项。</b></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:20px">
+  <div class="sec-head">
+    <span class="sec-no">04</span>
+    <div>
+      <div class="sec-title">搭工作台，<span class="u">四件套就够</span></div>
+      <div class="sec-desc">下面四个平台是集团员工现在就能用的，都支持零代码/低代码搭建，不需要开发资源。</div>
+    </div>
+  </div>
+  <table class="plat-table">
+    <tr><th>平台</th><th>最适合做什么</th><th>上手难度</th><th>典型工作台</th></tr>
+    <tr>
+      <td><span class="pill feishu">飞书</span></td>
+      <td>多维表格做"数据底座 + 自动化流程"，aily 做问答与助手，是工作台的中枢。</td>
+      <td>★☆☆ 低</td>
+      <td>员工助手 / 绩效管理 / 库存预警</td>
+    </tr>
+    <tr>
+      <td><span class="pill doubao">豆包</span></td>
+      <td>文档与表格智能处理、内容批量生成，适合内容与数据类工作台。</td>
+      <td>★☆☆ 低</td>
+      <td>会员营销 / 财务处理 / 批量内容</td>
+    </tr>
+    <tr>
+      <td><span class="pill wb">WorkBuddy</span></td>
+      <td>数据分析、报告生成、多步骤任务编排，适合"分析 + 出稿"型工作台。</td>
+      <td>★★☆ 中</td>
+      <td>AI 做课 / 培训导师 / 经营分析</td>
+    </tr>
+    <tr>
+      <td><span class="pill coze">扣子 Coze</span></td>
+      <td>搭建智能体与知识库，做对话、问答、评分、推荐类核心 AI 能力。</td>
+      <td>★★☆ 中</td>
+      <td>虚拟导购 / AI 客服 / 面试官 / 陪练</td>
+    </tr>
+  </table>
+  <div class="sec-desc" style="margin-top:14px">💡 一个工作台通常"组合两件套"：<b style="color:#CBD9F6">飞书/豆包负责数据与流程，扣子/WorkBuddy 负责 AI 能力</b>。把两者拼起来，就是完整的 AI 工作台。</div>
+</section>
+
+<!-- ============== PART 05 实战共建案例 ============== -->
+<section id="live-cases">
+  <div class="sec-head">
+    <span class="sec-no" style="color:#FBBF24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.10)">05</span>
+    <div>
+      <div class="sec-title">实战共建案例 · <span class="u">6 个真实可跑的应用</span></div>
+      <div class="sec-desc">上面 12 个是"参考结构"，下面是 <b style="color:#FCD34D">集团内已搭建并上线运行的真实工作台</b>——点链接就能进去体验，是比任何示意图都更直接的参赛示范。<span style="color:#FB7185">★ 重点参考 ★</span></div>
+    </div>
+  </div>
+
+  <!-- 案例 13 · 战略人力成本测算器（完整HTML应用） -->
+  <div class="case coze" style="border-color:rgba(251,191,36,.32);background:linear-gradient(168deg,#1F1838 0%,#0D1531 100%)">
+    <div class="case-head">
+      <div class="case-num">实战 · 13</div>
+      <div class="case-title">
+        <h3>战略人力成本测算器 <span class="pill coze">HTML应用</span></h3>
+        <div class="pain"><b style="color:#FCD34D">场景：</b>HR/财务部门战略规划 · 一份可商榷的年度人力成本方案</div>
+      </div>
+      <div class="tag-sub">📦 完整可下载<br>📊 12个月曲线对比</div>
+    </div>
+    <div class="case-body">
+      <div class="case-visual">
+        <svg viewBox="0 0 380 240" xmlns="http://www.w3.org/2000/svg">
+          <rect width="380" height="240" fill="#F1F5F9"/>
+          <!-- 顶栏 -->
+          <rect width="380" height="26" fill="#FFFFFF"/>
+          <rect x="12" y="7" width="20" height="12" rx="3" fill="#3B82F6"/>
+          <text x="40" y="17" fill="#0F172A" font-size="9" font-weight="700">人力成本战略测算系统</text>
+          <text x="368" y="17" fill="#64748B" font-size="8" text-anchor="end">导出 JSON · 重置</text>
+          <!-- 左栏：参数 -->
+          <g font-family="sans-serif" font-size="7.5">
+            <rect x="8" y="32" width="88" height="196" rx="5" fill="#FFFFFF" stroke="#E2E8F0"/>
+            <text x="16" y="46" fill="#0F172A" font-weight="700" font-size="8">方案管理</text>
+            <rect x="14" y="52" width="76" height="15" rx="3" fill="#DBEAFE"/>
+            <text x="20" y="62" fill="#1E40AF">● 方案一：激进扩张</text>
+            <rect x="14" y="70" width="76" height="15" rx="3" fill="#DCFCE7"/>
+            <text x="20" y="80" fill="#166534">● 方案二：保守维持</text>
+            <text x="16" y="100" fill="#0F172A" font-weight="700" font-size="8">基础参数</text>
+            <text x="16" y="112" fill="#64748B">五险一金 32%</text>
+            <text x="16" y="123" fill="#64748B">个税估算 8%</text>
+            <text x="16" y="134" fill="#64748B">福利系数 5%</text>
+            <text x="16" y="145" fill="#64748B">调薪比例 5%</text>
+            <text x="16" y="165" fill="#4F46E5" font-weight="700" font-size="8">战略目标约束</text>
+            <text x="16" y="177" fill="#64748B">营收 5000 万</text>
+            <text x="16" y="188" fill="#64748B">费用率上限 25%</text>
+            <rect x="14" y="196" width="76" height="20" rx="3" fill="#EEF2FF"/>
+            <text x="18" y="205" fill="#4338CA" font-size="6.5">战略预算红线</text>
+            <text x="18" y="213" fill="#312E81" font-weight="800" font-size="8">¥ 1250 万</text>
+          </g>
+          <!-- 中栏：编制规划 -->
+          <g font-family="sans-serif" font-size="7.5">
+            <rect x="100" y="32" width="128" height="196" rx="5" fill="#FFFFFF" stroke="#E2E8F0"/>
+            <text x="108" y="46" fill="#0F172A" font-weight="700" font-size="8">现有基数 + 新增编制</text>
+            <text x="108" y="58" fill="#64748B">当前 120 人 · 月薪 180 万</text>
+            <rect x="106" y="66" width="116" height="12" rx="2" fill="#F8FAFC"/>
+            <text x="110" y="75" fill="#334155">研发 +15人 3月 2.5万</text>
+            <rect x="106" y="81" width="116" height="12" rx="2" fill="#F8FAFC"/>
+            <text x="110" y="90" fill="#334155">销售 +8人 5月 1.8万</text>
+            <rect x="106" y="96" width="116" height="12" rx="2" fill="#F8FAFC"/>
+            <text x="110" y="105" fill="#334155">运营 +5人 6月 1.2万</text>
+            <rect x="106" y="114" width="116" height="14" rx="3" fill="#3B82F6"/>
+            <text x="164" y="124" fill="#FFF" text-anchor="middle" font-weight="700">＋ 添加编制计划</text>
+            <text x="108" y="144" fill="#0F172A" font-weight="700" font-size="8">月度成本推演</text>
+            <g fill="#F1F5F9">
+              <rect x="106" y="150" width="116" height="8" rx="2"/>
+              <rect x="106" y="161" width="116" height="8" rx="2"/>
+              <rect x="106" y="172" width="116" height="8" rx="2"/>
+              <rect x="106" y="183" width="116" height="8" rx="2"/>
+              <rect x="106" y="194" width="116" height="8" rx="2"/>
+            </g>
+            <g fill="#94A3B8" font-size="6">
+              <text x="110" y="156">1月</text><text x="110" y="167">2月</text><text x="110" y="178">3月</text><text x="110" y="189">4月</text><text x="110" y="200">5月</text>
+            </g>
+            <g fill="#3B82F6">
+              <rect x="130" y="151" width="60" height="6" rx="2"/>
+              <rect x="130" y="162" width="64" height="6" rx="2"/>
+              <rect x="130" y="173" width="78" height="6" rx="2"/>
+              <rect x="130" y="184" width="84" height="6" rx="2"/>
+              <rect x="130" y="195" width="88" height="6" rx="2"/>
+            </g>
+          </g>
+          <!-- 右栏：KPI + 图表 -->
+          <g font-family="sans-serif" font-size="7.5">
+            <rect x="232" y="32" width="140" height="196" rx="5" fill="#FFFFFF" stroke="#E2E8F0"/>
+            <rect x="238" y="38" width="62" height="24" rx="4" fill="#F8FAFC" stroke="#E2E8F0"/>
+            <text x="242" y="48" fill="#64748B" font-size="6.5">总预计人力成本</text>
+            <text x="242" y="58" fill="#0F172A" font-weight="800" font-size="9">¥ 3218 万</text>
+            <rect x="304" y="38" width="62" height="24" rx="4" fill="#F8FAFC" stroke="#E2E8F0"/>
+            <text x="308" y="48" fill="#64748B" font-size="6.5">人事费用率</text>
+            <text x="308" y="58" fill="#059669" font-weight="800" font-size="9">23.4%</text>
+            <rect x="238" y="66" width="128" height="24" rx="4" fill="#ECFDF5" stroke="#A7F3D0"/>
+            <text x="242" y="76" fill="#64748B" font-size="6.5">与预算红线差额</text>
+            <text x="242" y="86" fill="#059669" font-weight="800" font-size="9">剩余 ¥ 186 万</text>
+            <text x="238" y="106" fill="#0F172A" font-weight="700" font-size="8">累计成本增长曲线</text>
+            <polyline points="240,150 258,148 276,144 294,138 312,132 330,124 348,116 364,108" fill="none" stroke="#3B82F6" stroke-width="1.8"/>
+            <line x1="240" y1="118" x2="364" y2="118" stroke="#EF4444" stroke-width="1" stroke-dasharray="3,3" opacity=".7"/>
+            <text x="364" y="114" fill="#EF4444" font-size="6" text-anchor="end">预算红线</text>
+            <text x="238" y="168" fill="#0F172A" font-weight="700" font-size="8">月度成本结构</text>
+            <g>
+              <rect x="240" y="200" width="12" height="20" fill="#3B82F6"/>
+              <rect x="254" y="196" width="12" height="24" fill="#60A5FA"/>
+              <rect x="268" y="192" width="12" height="28" fill="#93C5FD"/>
+              <rect x="282" y="188" width="12" height="32" fill="#3B82F6"/>
+              <rect x="296" y="184" width="12" height="36" fill="#60A5FA"/>
+              <rect x="310" y="180" width="12" height="40" fill="#93C5FD"/>
+              <rect x="324" y="176" width="12" height="44" fill="#3B82F6"/>
+              <rect x="338" y="188" width="12" height="32" fill="#F97316"/>
+            </g>
+          </g>
+        </svg>
+        <div class="vis-cap">▲ 战略人力成本测算器真实界面（HTML 应用，点下方"全屏体验"进入完整版）</div>
+      </div>
+      <div class="case-right">
+        <div class="blk">
+          <div class="blk-h"><span class="tag">核心模块</span>构成一个完整的人力成本战略沙盘</div>
+          <div class="mods">
+            <div class="mod"><div class="n"><span class="i">1</span>方案管理</div><div class="d">激进扩张 vs 保守维持，A/B 方案可保存/加载，一键对比曲线差异</div></div>
+            <div class="mod"><div class="n"><span class="i">2</span>基础参数</div><div class="d">五险一金比例 / 个税 / 福利 / 调薪 / 年终月数，全参数实时联动</div></div>
+            <div class="mod"><div class="n"><span class="i">3</span>战略约束</div><div class="d">营收目标 × 人事费用率上限 = 预算红线，自动判定超支</div></div>
+            <div class="mod"><div class="n"><span class="i">4</span>编制规划</div><div class="d">按岗位序列添加新增编制（人数/月度/月薪/到岗月），月度成本自动推演</div></div>
+          </div>
+        </div>
+        <div class="blk how">
+          <div class="blk-h"><span class="tag">数据链路</span>5 环数据流转</div>
+          <div class="flow">
+            <span>基础参数</span><span class="ar">→</span>
+            <span>编制规划</span><span class="ar">→</span>
+            <span>月度成本推演</span><span class="ar">→</span>
+            <span>KPI 计算</span><span class="ar">→</span>
+            <span>红线判定</span><span class="ar">→</span>
+            <span>图表对比</span>
+          </div>
+        </div>
+        <div class="blk eff">
+          <div class="blk-h"><span class="tag">效果</span>已落地的实战数据</div>
+          <div class="metrics">
+            <div class="metric"><div class="v">12 个月</div><div class="k">成本推演跨度</div></div>
+            <div class="metric"><div class="v">A / B</div><div class="k">方案对比</div></div>
+            <div class="metric"><div class="v">3 张图</div><div class="k">累计 / 结构 / 人数</div></div>
+            <div class="metric"><div class="v">1 次</div><div class="k">vs Excel 数十次试错</div></div>
+          </div>
+        </div>
+        <div class="blk ref">
+          <div class="blk-h"><span class="tag">可借鉴的报名表填法</span></div>
+          <div class="ref-box">
+            <b style="color:#FCD34D">项目背景痛点：</b>年度人力成本预算依赖 Excel 反复试错，多部门协同困难，难以做方案对比与战略红线判定。<br>
+            <b style="color:#FCD34D">核心目标：</b>用一款可视化沙盘替代 Excel，3 分钟跑出一份可商榷的人力成本方案。<br>
+            <b style="color:#FCD34D">适用场景：</b>HRBP · 财务规划 · 战略复盘 · 子公司年度预算上报。<br>
+            <b style="color:#FCD34D">拟使用 AI 工具：</b>HTML + Tailwind + Chart.js（前端三件套，零代码平台也能产出此类工具）。
+          </div>
+        </div>
+        <div class="link-row">
+          <a class="btn-link" href="case13-hr-cost-simulator.html" target="_blank">🚀 全屏体验 HTML 应用 <span class="arw">→</span></a>
+          <a class="btn-link" href="case13-hr-cost-simulator.html" download>📥 下载 HTML 源码</a>
+          <span class="vis-cap" style="font-size:11px">📁 配套 HTML 文件已与本案例集打包在一起</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案例 14 · 新员工学习地图 -->
+  <div class="case coze" style="border-color:rgba(251,191,36,.32);background:linear-gradient(168deg,#1F1838 0%,#0D1531 100%)">
+    <div class="case-head">
+      <div class="case-num">实战 · 14</div>
+      <div class="case-title">
+        <h3>新员工学习地图 <span class="pill coze">扣子 Bot</span></h3>
+        <div class="pain"><b style="color:#FCD34D">场景：</b>HR/培训部门 · 让新员工"按图索骥"完成入职学习路径</div>
+      </div>
+      <div class="tag-sub">🌐 公开体验链接<br>🧭 按图索骥</div>
+    </div>
+    <div class="case-body">
+      <div class="case-visual">
+        <svg viewBox="0 0 380 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lm14a" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#1E293B"/><stop offset="1" stop-color="#0F172A"/></linearGradient>
+          </defs>
+          <rect width="380" height="240" fill="url(#lm14a)"/>
+          <rect x="14" y="14" width="352" height="22" rx="4" fill="#1E293B"/>
+          <circle cx="28" cy="25" r="3.5" fill="#FB7185"/><circle cx="40" cy="25" r="3.5" fill="#FBBF24"/><circle cx="52" cy="25" r="3.5" fill="#34D399"/>
+          <text x="200" y="29" fill="#94A3B8" font-size="10" text-anchor="middle">新员工学习地图 · Coze Bot</text>
+          <!-- 阶段节点 -->
+          <g font-family="sans-serif" font-size="9.5">
+            <rect x="20" y="56" width="78" height="34" rx="6" fill="rgba(34,211,238,.18)" stroke="#22D3EE" stroke-width="1"/>
+            <text x="59" y="72" fill="#67E8F9" text-anchor="middle" font-weight="700">第1周</text>
+            <text x="59" y="84" fill="#CBD5E1" text-anchor="middle">入职融入</text>
+            <rect x="116" y="56" width="78" height="34" rx="6" fill="rgba(139,92,246,.18)" stroke="#A78BFA" stroke-width="1"/>
+            <text x="155" y="72" fill="#C4B5FD" text-anchor="middle" font-weight="700">第2周</text>
+            <text x="155" y="84" fill="#CBD5E1" text-anchor="middle">公司认知</text>
+            <rect x="212" y="56" width="78" height="34" rx="6" fill="rgba(251,191,36,.18)" stroke="#FBBF24" stroke-width="1"/>
+            <text x="251" y="72" fill="#FCD34D" text-anchor="middle" font-weight="700">第3周</text>
+            <text x="251" y="84" fill="#CBD5E1" text-anchor="middle">业务入门</text>
+            <rect x="308" y="56" width="58" height="34" rx="6" fill="rgba(52,211,153,.18)" stroke="#34D399" stroke-width="1"/>
+            <text x="337" y="72" fill="#6EE7B7" text-anchor="middle" font-weight="700">第4周</text>
+            <text x="337" y="84" fill="#CBD5E1" text-anchor="middle">岗位实战</text>
+            <!-- 箭头 -->
+            <path d="M98 73 L116 73" stroke="#475569" stroke-width="1.2" fill="none" marker-end="url(#arr14)"/>
+            <path d="M194 73 L212 73" stroke="#475569" stroke-width="1.2" fill="none"/>
+            <path d="M290 73 L308 73" stroke="#475569" stroke-width="1.2" fill="none"/>
+          </g>
+          <defs><marker id="arr14" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0,0 6,3 0,6" fill="#475569"/></marker></defs>
+          <!-- 课程列表 -->
+          <g font-family="sans-serif" font-size="9">
+            <text x="20" y="118" fill="#94A3B8" font-weight="700">学习任务清单（共 18 门课）</text>
+            <rect x="20" y="128" width="346" height="22" rx="4" fill="rgba(34,211,238,.06)"/>
+            <text x="30" y="142" fill="#67E8F9">▸ 企业文化</text>
+            <rect x="120" y="128" width="60" height="14" rx="3" fill="#22D3EE"/>
+            <text x="150" y="139" fill="#0F172A" text-anchor="middle" font-weight="700" font-size="9">已完成</text>
+            <rect x="186" y="128" width="60" height="14" rx="3" fill="rgba(255,255,255,.06)" stroke="#475569" stroke-dasharray="2,2"/>
+            <text x="216" y="139" fill="#94A3B8" text-anchor="middle" font-size="9">学习中</text>
+            <rect x="20" y="156" width="346" height="22" rx="4" fill="rgba(255,255,255,.03)"/>
+            <text x="30" y="170" fill="#CBD5E1">▸ 制度规范</text>
+            <text x="350" y="170" fill="#94A3B8" text-anchor="end">未开始</text>
+            <rect x="20" y="184" width="346" height="22" rx="4" fill="rgba(255,255,255,.03)"/>
+            <text x="30" y="198" fill="#CBD5E1">▸ 业务基础</text>
+            <text x="350" y="198" fill="#94A3B8" text-anchor="end">未开始</text>
+          </g>
+          <text x="190" y="226" fill="#64748B" font-size="9" text-anchor="middle">学员：9/18 · 完成度 50%</text>
+        </svg>
+        <div class="vis-cap">▲ 学习地图工作台示意（点链接进入真实 Bot）</div>
+      </div>
+      <div class="case-right">
+        <div class="blk">
+          <div class="blk-h"><span class="tag">核心模块</span>让新员工学习路径"看得见"</div>
+          <div class="mods">
+            <div class="mod"><div class="n"><span class="i">1</span>阶段地图</div><div class="d">按周/月拆分学习阶段，每个阶段对应一类课程与必学任务</div></div>
+            <div class="mod"><div class="n"><span class="i">2</span>进度追踪</div><div class="d">每门课状态实时同步：未开始 / 学习中 / 已完成</div></div>
+            <div class="mod"><div class="n"><span class="i">3</span>智能推荐</div><div class="d">基于岗位画像自动推荐补学课程与下一阶段任务</div></div>
+            <div class="mod"><div class="n"><span class="i">4</span>对话答疑</div><div class="d">课程疑问/资料下载/制度咨询，全在一句话问答窗口</div></div>
+          </div>
+        </div>
+        <div class="blk how">
+          <div class="blk-h"><span class="tag">数据链路</span>从岗位画像到学习闭环</div>
+          <div class="flow">
+            <span>岗位类型</span><span class="ar">→</span>
+            <span>阶段地图</span><span class="ar">→</span>
+            <span>课程推送</span><span class="ar">→</span>
+            <span>学习记录</span><span class="ar">→</span>
+            <span>智能答疑</span>
+          </div>
+        </div>
+        <div class="blk eff">
+          <div class="blk-h"><span class="tag">效果</span>新员工上手周期可视化</div>
+          <div class="metrics">
+            <div class="metric"><div class="v">4 周</div><div class="k">清晰学习路径</div></div>
+            <div class="metric"><div class="v">18 门</div><div class="k">课程清单自动推送</div></div>
+            <div class="metric"><div class="v">1 对话</div><div class="k">替代手册查询</div></div>
+          </div>
+        </div>
+        <div class="blk ref">
+          <div class="blk-h"><span class="tag">可借鉴的报名表填法</span></div>
+          <div class="ref-box">
+            <b style="color:#FCD34D">项目背景痛点：</b>新员工入职学习靠 HR 群发链接 + 师傅带教，缺统一路径，缺进度可视化。<br>
+            <b style="color:#FCD34D">核心目标：</b>用对话式 Bot 替代纸质/Excel 学习清单，让每个新员工都有自己的"学习地图"。<br>
+            <b style="color:#FCD34D">适用场景：</b>新员工集训 · 转岗培训 · 校招生入职 · 实习生带教。<br>
+            <b style="color:#FCD34D">拟使用 AI 工具：</b>扣子 Coze 智能体 + 多维表格数据源。
+          </div>
+        </div>
+        <div class="link-row">
+          <a class="btn-link" href="https://7yz4nygvdz.coze.site" target="_blank">🌐 打开新员工学习地图 <span class="arw">→</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案例 15 · AI 课程开发系统 -->
+  <div class="case coze" style="border-color:rgba(251,191,36,.32);background:linear-gradient(168deg,#1F1838 0%,#0D1531 100%)">
+    <div class="case-head">
+      <div class="case-num">实战 · 15</div>
+      <div class="case-title">
+        <h3>AI 课程开发系统 <span class="pill coze">扣子 Bot</span></h3>
+        <div class="pain"><b style="color:#FCD34D">场景：</b>培训管理者 · 从一句话需求到完整课程体系</div>
+      </div>
+      <div class="tag-sub">📚 体系化输出</div>
+    </div>
+    <div class="case-body">
+      <div class="case-visual">
+        <svg viewBox="0 0 380 240" xmlns="http://www.w3.org/2000/svg">
+          <rect width="380" height="240" fill="#0F172A"/>
+          <rect x="14" y="14" width="352" height="22" rx="4" fill="#1E293B"/>
+          <text x="200" y="29" fill="#94A3B8" font-size="10" text-anchor="middle">AI 课程开发系统 · Coze Bot</text>
+          <!-- 输入框 -->
+          <rect x="20" y="50" width="340" height="34" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1"/>
+          <text x="30" y="64" fill="#64748B" font-size="9">📝 输入课程主题</text>
+          <text x="30" y="78" fill="#E2E8F0" font-size="11" font-weight="600">新员工岗位技能入门课</text>
+          <rect x="270" y="60" width="80" height="20" rx="4" fill="#FBBF24"/>
+          <text x="310" y="74" fill="#0F172A" text-anchor="middle" font-size="10" font-weight="700">一键生成 →</text>
+          <!-- 输出：模块化结构 -->
+          <g font-family="sans-serif" font-size="9">
+            <text x="20" y="108" fill="#94A3B8" font-weight="700">📑 已生成的课程模块（5 大模块 / 18 节课）</text>
+            <rect x="20" y="116" width="166" height="26" rx="4" fill="rgba(34,211,238,.10)" stroke="#22D3EE" stroke-width=".8"/>
+            <text x="30" y="132" fill="#67E8F9" font-weight="700">模块 1 · 职业认知</text>
+            <rect x="194" y="116" width="166" height="26" rx="4" fill="rgba(139,92,246,.10)" stroke="#A78BFA" stroke-width=".8"/>
+            <text x="204" y="132" fill="#C4B5FD" font-weight="700">模块 2 · 通用技能</text>
+            <rect x="20" y="148" width="166" height="26" rx="4" fill="rgba(251,191,36,.10)" stroke="#FBBF24" stroke-width=".8"/>
+            <text x="30" y="164" fill="#FCD34D" font-weight="700">模块 3 · 专业技能</text>
+            <rect x="194" y="148" width="166" height="26" rx="4" fill="rgba(52,211,153,.10)" stroke="#34D399" stroke-width=".8"/>
+            <text x="204" y="164" fill="#6EE7B7" font-weight="700">模块 4 · 实操演练</text>
+            <rect x="20" y="180" width="340" height="26" rx="4" fill="rgba(168,85,247,.10)" stroke="#A855F7" stroke-width=".8"/>
+            <text x="30" y="196" fill="#C4B5FD" font-weight="700">模块 5 · 考核认证 + 自动出题 / 试卷 / 评估问卷</text>
+          </g>
+          <rect x="20" y="216" width="340" height="14" rx="3" fill="#1E293B"/>
+          <text x="30" y="226" fill="#94A3B8" font-size="8.5">📥 一键导出 Word 课纲 / PPT 大纲 / 评估问卷</text>
+        </svg>
+        <div class="vis-cap">▲ AI 课程开发工作台示意</div>
+      </div>
+      <div class="case-right">
+        <div class="blk">
+          <div class="blk-h"><span class="tag">核心模块</span>从一句话需求到完整课纲</div>
+          <div class="mods">
+            <div class="mod"><div class="n"><span class="i">1</span>需求解析</div><div class="d">学员群体 + 课程目的 + 业务场景，自动拆解痛点</div></div>
+            <div class="mod"><div class="n"><span class="i">2</span>模块生成</div><div class="d">基于"技能驱动"模型生成模块化课纲（认知/通用/专业/实操/考核）</div></div>
+            <div class="mod"><div class="n"><span class="i">3</span>内容填充</div><div class="d">每节课自动生成授课要点、案例、练习与讲师备注</div></div>
+            <div class="mod"><div class="n"><span class="i">4</span>评估闭环</div><div class="d">同步生成评估问卷/试卷，与培训评估分析 skill 联动</div></div>
+          </div>
+        </div>
+        <div class="blk how">
+          <div class="blk-h"><span class="tag">数据链路</span>输入一句话，输出整套课纲</div>
+          <div class="flow">
+            <span>课程主题</span><span class="ar">→</span>
+            <span>需求拆解</span><span class="ar">→</span>
+            <span>模块生成</span><span class="ar">→</span>
+            <span>内容填充</span><span class="ar">→</span>
+            <span>评估闭环</span>
+          </div>
+        </div>
+        <div class="blk eff">
+          <div class="blk-h"><span class="tag">效果</span>课纲开发提速</div>
+          <div class="metrics">
+            <div class="metric"><div class="v">3 天</div><div class="k">→ 30 分钟</div></div>
+            <div class="metric"><div class="v">18 节</div><div class="k">课纲一次性生成</div></div>
+            <div class="metric"><div class="v">3 份</div><div class="k">同步输出 Word/PPT/问卷</div></div>
+          </div>
+        </div>
+        <div class="blk ref">
+          <div class="blk-h"><span class="tag">可借鉴的报名表填法</span></div>
+          <div class="ref-box">
+            <b style="color:#FCD34D">项目背景痛点：</b>培训管理者每开一门新课，需人工拆模块、写大纲、做问卷，重复劳动高、产出慢。<br>
+            <b style="color:#FCD34D">核心目标：</b>用 AI 把"课纲开发"从 3 天压缩到 30 分钟，并保证输出质量稳定。<br>
+            <b style="color:#FCD34D">适用场景：</b>新员工课程开发 · 内训师赋能 · 培训方案前置设计 · 评估问卷生成。<br>
+            <b style="color:#FCD34D">拟使用 AI 工具：</b>扣子 Coze + WorkBuddy 多技能编排（可对接培训需求文档自动提取）。
+          </div>
+        </div>
+        <div class="link-row">
+          <a class="btn-link" href="https://xq8jcxhkps.coze.site" target="_blank">🌐 打开 AI 课程开发系统 <span class="arw">→</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案例 16 · 人才盘点系统 -->
+  <div class="case coze" style="border-color:rgba(251,191,36,.32);background:linear-gradient(168deg,#1F1838 0%,#0D1531 100%)">
+    <div class="case-head">
+      <div class="case-num">实战 · 16</div>
+      <div class="case-title">
+        <h3>人才盘点系统 <span class="pill coze">HTML应用 ×2</span></h3>
+        <div class="pain"><b style="color:#FCD34D">场景：</b>HR/OD 团队 · 干部盘点与梯队建设</div>
+      </div>
+      <div class="tag-sub">👥 人才九宫格<br>📦 两款工具可下载</div>
+    </div>
+    <div class="case-body">
+      <div class="case-visual">
+        <svg viewBox="0 0 380 240" xmlns="http://www.w3.org/2000/svg">
+          <rect width="380" height="240" fill="#0F172A"/>
+          <rect x="14" y="14" width="352" height="22" rx="4" fill="#1E293B"/>
+          <text x="200" y="29" fill="#94A3B8" font-size="10" text-anchor="middle">人才盘点系统 · 九宫格分布</text>
+          <!-- 九宫格 -->
+          <g transform="translate(60,52)">
+            <!-- 列标签 -->
+            <text x="-8" y="118" fill="#94A3B8" font-size="9" text-anchor="end" transform="rotate(-90 -8 118)">绩效 →</text>
+            <!-- 3x3 网格 -->
+            <rect x="0" y="0" width="80" height="40" fill="rgba(251,191,36,.14)" stroke="#FBBF24" stroke-width="1"/>
+            <rect x="80" y="0" width="80" height="40" fill="rgba(52,211,153,.10)" stroke="#34D399" stroke-width="1"/>
+            <rect x="160" y="0" width="80" height="40" fill="rgba(34,211,238,.12)" stroke="#22D3EE" stroke-width="1"/>
+            <rect x="0" y="40" width="80" height="40" fill="rgba(251,191,36,.08)" stroke="#FBBF24" stroke-width="1" stroke-dasharray="2,2"/>
+            <rect x="80" y="40" width="80" height="40" fill="rgba(251,191,36,.10)" stroke="#FBBF24" stroke-width="1"/>
+            <rect x="160" y="40" width="80" height="40" fill="rgba(52,211,153,.10)" stroke="#34D399" stroke-width="1"/>
+            <rect x="0" y="80" width="80" height="40" fill="rgba(239,68,68,.10)" stroke="#FB7185" stroke-width="1"/>
+            <rect x="80" y="80" width="80" height="40" fill="rgba(251,191,36,.08)" stroke="#FBBF24" stroke-width="1" stroke-dasharray="2,2"/>
+            <rect x="160" y="80" width="80" height="40" fill="rgba(168,85,247,.10)" stroke="#A855F7" stroke-width="1"/>
+            <!-- 数据点 -->
+            <circle cx="40" cy="20" r="9" fill="#FBBF24" opacity=".9"/><text x="40" y="24" fill="#0F172A" text-anchor="middle" font-size="9" font-weight="700">3</text>
+            <circle cx="120" cy="20" r="11" fill="#34D399" opacity=".9"/><text x="120" y="24" fill="#0F172A" text-anchor="middle" font-size="9" font-weight="700">5</text>
+            <circle cx="200" cy="20" r="7" fill="#22D3EE" opacity=".9"/><text x="200" y="24" fill="#0F172A" text-anchor="middle" font-size="9" font-weight="700">2</text>
+            <circle cx="40" cy="60" r="6" fill="#FBBF24" opacity=".7"/><text x="40" y="63" fill="#0F172A" text-anchor="middle" font-size="8" font-weight="700">2</text>
+            <circle cx="120" cy="60" r="14" fill="#FBBF24" opacity=".9"/><text x="120" y="63" fill="#0F172A" text-anchor="middle" font-size="9" font-weight="700">7</text>
+            <circle cx="200" cy="60" r="10" fill="#34D399" opacity=".9"/><text x="200" y="63" fill="#0F172A" text-anchor="middle" font-size="9" font-weight="700">4</text>
+            <circle cx="40" cy="100" r="5" fill="#FB7185" opacity=".9"/><text x="40" y="103" fill="#0F172A" text-anchor="middle" font-size="8" font-weight="700">1</text>
+            <circle cx="200" cy="100" r="8" fill="#A855F7" opacity=".9"/><text x="200" y="103" fill="#0F172A" text-anchor="middle" font-size="9" font-weight="700">3</text>
+            <!-- 轴标签 -->
+            <text x="120" y="-8" fill="#94A3B8" font-size="9" text-anchor="middle">潜力 →</text>
+            <text x="120" y="138" fill="#94A3B8" font-size="9" text-anchor="middle">← 潜力</text>
+          </g>
+          <!-- 图例 -->
+          <g transform="translate(20,200)" font-family="sans-serif" font-size="9">
+            <circle cx="6" cy="6" r="4" fill="#FBBF24"/><text x="14" y="9" fill="#CBD5E1">核心员工 12</text>
+            <circle cx="86" cy="6" r="4" fill="#34D399"/><text x="94" y="9" fill="#CBD5E1">高潜 9</text>
+            <circle cx="156" cy="6" r="4" fill="#22D3EE"/><text x="164" y="9" fill="#CBD5E1">专家 5</text>
+            <circle cx="226" cy="6" r="4" fill="#A855F7"/><text x="234" y="9" fill="#CBD5E1">待提升 4</text>
+            <circle cx="306" cy="6" r="4" fill="#FB7185"/><text x="314" y="9" fill="#CBD5E1">观察 1</text>
+          </g>
+        </svg>
+        <div class="vis-cap">▲ 九宫格人才盘点工作台示意（真实工具已内置，点下方按钮即可打开/下载）</div>
+      </div>
+      <div class="case-right">
+        <div class="blk">
+          <div class="blk-h"><span class="tag">核心模块</span>让人才结构"一眼看清"</div>
+          <div class="mods">
+            <div class="mod"><div class="n"><span class="i">1</span>九宫格分布</div><div class="d">绩效 × 潜力 二维矩阵，盘点结果可视化分层</div></div>
+            <div class="mod"><div class="n"><span class="i">2</span>评语输入</div><div class="d">支持多评委评分自动汇总，避免 Excel 手工合成</div></div>
+            <div class="mod"><div class="n"><span class="i">3</span>梯队诊断</div><div class="d">自动识别关键岗位接班人、骨干断层与高潜池厚度</div></div>
+            <div class="mod"><div class="n"><span class="i">4</span>发展建议</div><div class="d">对每个象限自动生成培养路径与下一步发展动作</div></div>
+          </div>
+        </div>
+        <div class="blk how">
+          <div class="blk-h"><span class="tag">数据链路</span>从评分到发展建议</div>
+          <div class="flow">
+            <span>评委打分</span><span class="ar">→</span>
+            <span>自动归集</span><span class="ar">→</span>
+            <span>九宫格定位</span><span class="ar">→</span>
+            <span>梯队诊断</span><span class="ar">→</span>
+            <span>发展建议</span>
+          </div>
+        </div>
+        <div class="blk eff">
+          <div class="blk-h"><span class="tag">效果</span>盘点效率显著提升</div>
+          <div class="metrics">
+            <div class="metric"><div class="v">31 人</div><div class="k">一键定位分布</div></div>
+            <div class="metric"><div class="v">2 周</div><div class="k">→ 1 小时</div></div>
+            <div class="metric"><div class="v">100%</div><div class="k">数据可追溯</div></div>
+          </div>
+        </div>
+        <div class="blk ref">
+          <div class="blk-h"><span class="tag">可借鉴的报名表填法</span></div>
+          <div class="ref-box">
+            <b style="color:#FCD34D">项目背景痛点：</b>人才盘点长期依赖 Excel + 多评委手工打分 + 人力合成，过程不透明、评委意见难追溯。<br>
+            <b style="color:#FCD34D">核心目标：</b>把"评委打分→九宫格定位→梯队诊断→发展建议"全自动跑通，盘点会只需看结论。<br>
+            <b style="color:#FCD34D">适用场景：</b>年度干部盘点 · 校招生盘点 · 关键岗位接班人评估 · 高潜池筛选。<br>
+            <b style="color:#FCD34D">拟使用 AI 工具：</b>扣子 Coze + 多维表格 + WorkBuddy 数据分析能力。
+          </div>
+        </div>
+        <div class="link-row">
+          <a class="btn-link" href="case16-talent-grid.html" target="_blank">🚀 工具 A · 拖拽调整版（在线运行） <span class="arw">→</span></a>
+          <a class="btn-link" href="case16-talent-grid.html" download>📥 下载工具 A</a>
+          <a class="btn-link" href="case16b-talent-grid-pro.html" target="_blank">🌐 工具 B · 双语导出版（在线运行） <span class="arw">→</span></a>
+          <a class="btn-link" href="case16b-talent-grid-pro.html" download>📥 下载工具 B</a>
+          <span class="vis-cap" style="font-size:11px">📁 两款 HTML 工具已与本案例集打包，下载后用浏览器打开即用：A 款支持拖拽微调+导出调整结果，B 款支持导出图片+一键复制名单（首次打开需联网加载表格组件）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案例 17 · 油气井测算工具 -->
+  <div class="case coze" style="border-color:rgba(251,191,36,.32);background:linear-gradient(168deg,#1F1838 0%,#0D1531 100%)">
+    <div class="case-head">
+      <div class="case-num">实战 · 17</div>
+      <div class="case-title">
+        <h3>油气井测算工具 <span class="pill coze">秒哒 App</span></h3>
+        <div class="pain"><b style="color:#FCD34D">场景：</b>业务部门 · 复杂参数场景下的一键测算工具</div>
+      </div>
+      <div class="tag-sub">⚙️ 秒哒低代码</div>
+    </div>
+    <div class="case-body">
+      <div class="case-visual">
+        <svg viewBox="0 0 380 240" xmlns="http://www.w3.org/2000/svg">
+          <rect width="380" height="240" fill="#0F172A"/>
+          <rect x="14" y="14" width="352" height="22" rx="4" fill="#1E293B"/>
+          <text x="200" y="29" fill="#94A3B8" font-size="10" text-anchor="middle">油气井测算工具 · 秒哒 App</text>
+          <!-- 输入参数 -->
+          <g font-family="sans-serif" font-size="9.5">
+            <text x="20" y="50" fill="#94A3B8" font-weight="700">⚙ 关键参数输入</text>
+            <rect x="20" y="58" width="166" height="22" rx="4" fill="#1E293B" stroke="#475569"/>
+            <text x="28" y="73" fill="#94A3B8">井深 (m)</text>
+            <text x="178" y="73" fill="#FCD34D" text-anchor="end" font-weight="700">3500</text>
+            <rect x="194" y="58" width="166" height="22" rx="4" fill="#1E293B" stroke="#475569"/>
+            <text x="202" y="73" fill="#94A3B8">日产气量 (万方)</text>
+            <text x="352" y="73" fill="#FCD34D" text-anchor="end" font-weight="700">12.5</text>
+            <rect x="20" y="86" width="166" height="22" rx="4" fill="#1E293B" stroke="#475569"/>
+            <text x="28" y="101" fill="#94A3B8">气价 (元/方)</text>
+            <text x="178" y="101" fill="#FCD34D" text-anchor="end" font-weight="700">2.18</text>
+            <rect x="194" y="86" width="166" height="22" rx="4" fill="#1E293B" stroke="#475569"/>
+            <text x="202" y="101" fill="#94A3B8">开采年限</text>
+            <text x="352" y="101" fill="#FCD34D" text-anchor="end" font-weight="700">15</text>
+          </g>
+          <!-- 一键测算按钮 -->
+          <rect x="20" y="118" width="340" height="26" rx="5" fill="#FBBF24"/>
+          <text x="190" y="135" fill="#0F172A" text-anchor="middle" font-size="11" font-weight="800">🚀 一键测算 · 自动建模</text>
+          <!-- 输出结果 -->
+          <g font-family="sans-serif" font-size="10">
+            <text x="20" y="164" fill="#94A3B8" font-weight="700">📊 测算结果（自动）</text>
+            <rect x="20" y="172" width="166" height="50" rx="6" fill="rgba(34,211,238,.08)" stroke="#22D3EE" stroke-width=".8"/>
+            <text x="30" y="190" fill="#67E8F9" font-size="9">年营业收入</text>
+            <text x="30" y="210" fill="#22D3EE" font-size="16" font-weight="800">¥ 9.94 亿</text>
+            <rect x="194" y="172" width="166" height="50" rx="6" fill="rgba(52,211,153,.08)" stroke="#34D399" stroke-width=".8"/>
+            <text x="204" y="190" fill="#6EE7B7" font-size="9">投资回收期</text>
+            <text x="204" y="210" fill="#34D399" font-size="16" font-weight="800">3.2 年</text>
+          </g>
+        </svg>
+        <div class="vis-cap">▲ 业务测算型工作台示意</div>
+      </div>
+      <div class="case-right">
+        <div class="blk">
+          <div class="blk-h"><span class="tag">核心模块</span>复杂业务参数场景的一键测算</div>
+          <div class="mods">
+            <div class="mod"><div class="n"><span class="i">1</span>参数面板</div><div class="d">关键业务参数可视化输入，支持多场景配置切换</div></div>
+            <div class="mod"><div class="n"><span class="i">2</span>测算引擎</div><div class="d">内置业务公式与模型，自动跑测算，支持实时调参</div></div>
+            <div class="mod"><div class="n"><span class="i">3</span>结果输出</div><div class="d">关键指标卡片化展示，自动生成简要结论</div></div>
+            <div class="mod"><div class="n"><span class="i">4</span>场景对比</div><div class="d">支持多套参数方案对比，便于业务决策沟通</div></div>
+          </div>
+        </div>
+        <div class="blk how">
+          <div class="blk-h"><span class="tag">数据链路</span>从参数到结论</div>
+          <div class="flow">
+            <span>业务参数</span><span class="ar">→</span>
+            <span>测算引擎</span><span class="ar">→</span>
+            <span>关键指标</span><span class="ar">→</span>
+            <span>结果卡片</span><span class="ar">→</span>
+            <span>决策建议</span>
+          </div>
+        </div>
+        <div class="blk eff">
+          <div class="blk-h"><span class="tag">效果</span>业务测算提速</div>
+          <div class="metrics">
+            <div class="metric"><div class="v">4 项</div><div class="k">关键参数一键调</div></div>
+            <div class="metric"><div class="v">2 个</div><div class="k">核心指标秒出</div></div>
+            <div class="metric"><div class="v">0 行</div><div class="k">代码即可实现</div></div>
+          </div>
+        </div>
+        <div class="blk ref">
+          <div class="blk-h"><span class="tag">可借鉴的报名表填法</span></div>
+          <div class="ref-box">
+            <b style="color:#FCD34D">项目背景痛点：</b>业务测算常依赖 Excel 模板，参数调整后整张表都要重算，效率低、易出错。<br>
+            <b style="color:#FCD34D">核心目标：</b>把 Excel 模板做成 App，业务人员随时调参，结论秒级返回。<br>
+            <b style="color:#FCD34D">适用场景：</b>业务测算 · 报价计算 · 利润推演 · 投资回报分析。<br>
+            <b style="color:#FCD34D">拟使用 AI 工具：</b>秒哒低代码（同样套路也可用扣子+多维表格实现）。
+          </div>
+        </div>
+        <div class="link-row">
+          <a class="btn-link" href="https://www.miaoda.cn/apps/app-73o9ys5lxu69?s=s" target="_blank">🌐 打开油气井测算工具 <span class="arw">→</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 实战·18 AI爆款生成神器 -->
+  <div class="case yellow" style="--tag:#FB7185">
+    <div class="case-head">
+      <div class="case-num">实战 · 18</div>
+      <h3 class="case-title">AI 爆款生成神器 · 豆包 + 扣子做爆款短视频</h3>
+      <div class="case-meta">
+        <span class="meta-pill" style="background:rgba(251,113,133,.12);color:#FDA4AF">🎬 视频内容</span>
+        <span class="meta-pill" style="background:rgba(251,191,36,.14);color:#FCD34D">豆包 + 扣子 + 剪映</span>
+        <span class="meta-pill" style="background:rgba(96,165,250,.14);color:#93C5FD">零代码 / 立即上手</span>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-visual" style="padding:0;background:#0F172A">
+        <svg viewBox="0 0 360 200" width="100%" style="display:block;border-radius:14px 14px 0 0">
+          <defs>
+            <linearGradient id="vidBg18" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#1E1B4B"/><stop offset="1" stop-color="#0F172A"/>
+            </linearGradient>
+            <linearGradient id="vidPink" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#FB7185"/><stop offset="1" stop-color="#A855F7"/>
+            </linearGradient>
+          </defs>
+          <rect width="360" height="200" fill="url(#vidBg18)"/>
+          <!-- 顶部 tab -->
+          <rect x="10" y="8" width="340" height="20" rx="5" fill="rgba(255,255,255,.04)"/>
+          <text x="20" y="22" fill="#A9BBDD" font-size="9">📂 我的爆款工作台 / 国学系列·第28集</text>
+          <circle cx="335" cy="18" r="3" fill="#FB7185"/><circle cx="345" cy="18" r="3" fill="#FBBF24"/><circle cx="325" cy="18" r="3" fill="#34D399"/>
+          <!-- 左侧 选题库 -->
+          <g>
+            <rect x="10" y="34" width="78" height="156" rx="6" fill="rgba(251,113,133,.06)" stroke="rgba(251,113,133,.18)"/>
+            <text x="16" y="46" fill="#FDA4AF" font-size="8" font-weight="700">📚 选题库</text>
+            <text x="16" y="60" fill="#94A3B8" font-size="6.5">热度评分</text>
+            <g font-size="6.5" fill="#E2E8F0">
+              <rect x="14" y="66" width="70" height="14" rx="3" fill="rgba(251,113,133,.18)"/><text x="18" y="75">坤卦·厚德</text><text x="76" y="75" fill="#FB7185" text-anchor="end" font-weight="700">9.2</text>
+              <rect x="14" y="83" width="70" height="14" rx="3" fill="rgba(255,255,255,.04)"/><text x="18" y="92">三分钟读懂易经</text><text x="76" y="92" fill="#A9BBDD" text-anchor="end">8.6</text>
+              <rect x="14" y="100" width="70" height="14" rx="3" fill="rgba(255,255,255,.04)"/><text x="18" y="109">乾卦·自强</text><text x="76" y="109" fill="#A9BBDD" text-anchor="end">8.1</text>
+              <rect x="14" y="117" width="70" height="14" rx="3" fill="rgba(255,255,255,.04)"/><text x="18" y="126">屯卦·起始</text><text x="76" y="126" fill="#A9BBDD" text-anchor="end">7.8</text>
+              <rect x="14" y="134" width="70" height="14" rx="3" fill="rgba(255,255,255,.04)"/><text x="18" y="143">需卦·等待</text><text x="76" y="143" fill="#A9BBDD" text-anchor="end">7.4</text>
+            </g>
+            <text x="16" y="166" fill="#FDA4AF" font-size="6.5">🤖 豆包自动归类</text>
+            <text x="16" y="180" fill="#64748B" font-size="6">30个候选·日更3条</text>
+          </g>
+          <!-- 中左 脚本编辑 -->
+          <g>
+            <rect x="92" y="34" width="92" height="156" rx="6" fill="rgba(168,85,247,.06)" stroke="rgba(168,85,247,.20)"/>
+            <text x="98" y="46" fill="#D8B4FE" font-size="8" font-weight="700">✍️ 脚本工厂</text>
+            <text x="98" y="58" fill="#A9BBDD" font-size="6">标题（5版·扣子生成）</text>
+            <g font-size="5.6" fill="#E2E8F0">
+              <rect x="96" y="62" width="86" height="9" rx="2" fill="rgba(168,85,247,.16)"/><text x="99" y="68.5">坤卦为什么是厚德载物？</text>
+              <rect x="96" y="73" width="86" height="9" rx="2" fill="rgba(255,255,255,.04)"/><text x="99" y="79.5">3分钟读懂《易经》第二卦</text>
+              <rect x="96" y="84" width="86" height="9" rx="2" fill="rgba(255,255,255,.04)"/><text x="99" y="90.5">坤卦里的人生智慧</text>
+            </g>
+            <text x="98" y="105" fill="#A9BBDD" font-size="6">分镜 + 旁白</text>
+            <g font-size="5.4" fill="#E2E8F0">
+              <text x="98" y="113">▸ 0-3s 钩子：</text><text x="98" y="120" fill="#A9BBDD">天行健，君子以…</text>
+              <text x="98" y="130">▸ 4-25s 主体：</text><text x="98" y="137" fill="#A9BBDD">坤为地，顺势而为…</text>
+              <text x="98" y="147">▸ 26-30s 收尾：</text><text x="98" y="154" fill="#A9BBDD">关注看下一卦</text>
+            </g>
+            <text x="98" y="172" fill="#D8B4FE" font-size="6.5">⚡ 脚本撰写 40min→8min</text>
+            <text x="98" y="183" fill="#64748B" font-size="6">豆包 + 扣子标题神器</text>
+          </g>
+          <!-- 中右 素材库 -->
+          <g>
+            <rect x="188" y="34" width="80" height="156" rx="6" fill="rgba(52,211,153,.06)" stroke="rgba(52,211,153,.20)"/>
+            <text x="194" y="46" fill="#6EE7B7" font-size="8" font-weight="700">🎞️ 素材库</text>
+            <g>
+              <rect x="194" y="52" width="34" height="22" rx="2" fill="url(#vidPink)"/><text x="200" y="65" fill="#FFF" font-size="6" font-weight="700">AI·画面1</text>
+              <rect x="230" y="52" width="34" height="22" rx="2" fill="url(#vidPink)" opacity=".7"/><text x="236" y="65" fill="#FFF" font-size="6" font-weight="700">AI·画面2</text>
+              <rect x="194" y="76" width="34" height="22" rx="2" fill="rgba(255,255,255,.08)"/><text x="200" y="89" fill="#FFF" font-size="6" font-weight="700">自拍片段</text>
+              <rect x="230" y="76" width="34" height="22" rx="2" fill="rgba(255,255,255,.08)"/><text x="236" y="89" fill="#FFF" font-size="6" font-weight="700">配音·小帅</text>
+              <rect x="194" y="100" width="34" height="22" rx="2" fill="rgba(255,255,255,.08)"/><text x="200" y="113" fill="#FFF" font-size="6" font-weight="700">BGM·古风</text>
+              <rect x="230" y="100" width="34" height="22" rx="2" fill="rgba(255,255,255,.08)"/><text x="236" y="113" fill="#FFF" font-size="6" font-weight="700">字幕模板</text>
+            </g>
+            <text x="194" y="135" fill="#6EE7B7" font-size="6.5">⚡ 素材自动匹配</text>
+            <text x="194" y="146" fill="#64748B" font-size="6">剪映"图文成片"</text>
+            <text x="194" y="162" fill="#A9BBDD" font-size="6">⏱️ 30秒连贯视频</text>
+            <text x="194" y="174" fill="#A9BBDD" font-size="6">画风统一·首尾接龙</text>
+            <text x="194" y="186" fill="#A9BBDD" font-size="6">字幕+转场+配音</text>
+          </g>
+          <!-- 右侧 成片预览 -->
+          <g>
+            <rect x="272" y="34" width="78" height="156" rx="6" fill="rgba(251,191,36,.06)" stroke="rgba(251,191,36,.20)"/>
+            <text x="278" y="46" fill="#FCD34D" font-size="8" font-weight="700">📤 成片预览</text>
+            <rect x="278" y="52" width="66" height="50" rx="4" fill="rgba(0,0,0,.5)" stroke="rgba(251,191,36,.30)"/>
+            <polygon points="306,68 306,90 322,79" fill="#FBBF24"/>
+            <text x="311" y="115" fill="#FCD34D" font-size="6.5" text-anchor="middle" font-weight="700">坤卦·厚德载物</text>
+            <text x="311" y="125" fill="#A9BBDD" font-size="5.5" text-anchor="middle">30s · 国风水墨</text>
+            <g font-size="5.5" fill="#E2E8F0">
+              <text x="278" y="138">▸ 完播率预估</text><text x="346" y="138" fill="#34D399" text-anchor="end" font-weight="700">82%</text>
+              <text x="278" y="148">▸ 互动率预估</text><text x="346" y="148" fill="#34D399" text-anchor="end" font-weight="700">6.3%</text>
+              <text x="278" y="158">▸ 爆款概率</text><text x="346" y="158" fill="#FBBF24" text-anchor="end" font-weight="700">★★★★☆</text>
+            </g>
+            <rect x="278" y="166" width="66" height="18" rx="3" fill="url(#vidPink)"/>
+            <text x="311" y="178" fill="#FFF" font-size="7" text-anchor="middle" font-weight="700">🚀 一键发布抖音</text>
+          </g>
+        </svg>
+        <div class="vis-cap">▲ 视频内容生产工作台（选题库→脚本→素材→成片·数据回流）</div>
+      </div>
+      <div class="case-right">
+        <div class="blk">
+          <div class="blk-h"><span class="tag">核心模块</span>从选题到爆款的完整流水线</div>
+          <div class="mods">
+            <div class="mod"><div class="n"><span class="i">1</span>选题引擎</div><div class="d">豆包按"痛点-人群-可拍性"三维归类，30 个候选自动出热度评分</div></div>
+            <div class="mod"><div class="n"><span class="i">2</span>脚本工厂</div><div class="d">扣子"抖音爆款标题神器"出 5 版标题 + 豆包按模板出 5 版开头 + 分镜</div></div>
+            <div class="mod"><div class="n"><span class="i">3</span>爆款拆解</div><div class="d">扣子"免费提取抖音文案"+ DeepSeek 分析钩子/情绪/结构/转化路径</div></div>
+            <div class="mod"><div class="n"><span class="i">4</span>一键成片</div><div class="d">豆包电脑版 30s 连贯视频（首尾接龙） + 剪映"图文成片"自动配字幕配音</div></div>
+          </div>
+        </div>
+        <div class="blk how">
+          <div class="blk-h"><span class="tag">数据链路</span>从选题到爆款的 5 环流水线</div>
+          <div class="flow">
+            <span>选题库</span><span class="ar">→</span>
+            <span>脚本生成</span><span class="ar">→</span>
+            <span>分镜/分P</span><span class="ar">→</span>
+            <span>AI 视频</span><span class="ar">→</span>
+            <span>智能投流</span>
+          </div>
+        </div>
+        <div class="blk eff">
+          <div class="blk-h"><span class="tag">效果</span>个人/门店都被验证</div>
+          <div class="metrics">
+            <div class="metric"><div class="v">40→8min</div><div class="k">脚本撰写提速</div></div>
+            <div class="metric"><div class="v">3/周→2/天</div><div class="k">产能翻 5 倍</div></div>
+            <div class="metric"><div class="v">几千→120万</div><div class="k">月播放量</div></div>
+            <div class="metric"><div class="v">8→2.3 元</div><div class="k">获客成本</div></div>
+          </div>
+        </div>
+        <div class="blk ref">
+          <div class="blk-h"><span class="tag">可借鉴的报名表填法</span></div>
+          <div class="ref-box">
+            <b style="color:#FCD34D">项目背景痛点：</b>短视频团队/个人创作者每周憋 3 条视频就精疲力竭，脚本 40min/条、播放量长期卡几百、不懂爆款逻辑<br>
+            <b style="color:#FCD34D">核心目标：</b>日更 2-3 条 + 7 条跑出 2 条过万播放 + 选题/脚本/出片全流程提效 10 倍<br>
+            <b style="color:#FCD34D">适用场景/对象/方式：</b>抖音/视频号/小红书短视频内容团队 · 任何想打造个人 IP 的员工 · 全流程零代码<br>
+            <b style="color:#FCD34D">拟使用 AI 工具：</b>豆包（doubao.com 脚本+视频） + 扣子"抖音爆款标题神器" Bot + 扣子"免费提取抖音文案" Bot + 剪映"图文成片"
+          </div>
+        </div>
+        <div class="blk" style="background:rgba(251,113,133,.08);border:1px dashed rgba(251,113,133,.30)">
+          <div class="blk-h"><span class="tag" style="background:rgba(251,113,133,.20);color:#FDA4AF">真实图文 + 视频佐证</span>已被验证的两个爆款案例</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12.2px;color:#E2E8F0;line-height:1.7">
+            <div style="background:rgba(255,255,255,.04);padding:10px 12px;border-radius:8px">
+              <div style="color:#FCD34D;font-weight:700;margin-bottom:4px">📖 图文案例 ①：奶茶店 3 个月</div>
+              老板娘用"豆包生成场景化文案 + 剪映图文成片"组合拳，<b>日更 3 条 / 月 90 条 / 月播放从几千→120万 / 获客成本 8→2.3 元 / 3 个月净利润多 17 万</b>。零代运营费用。
+            </div>
+            <div style="background:rgba(255,255,255,.04);padding:10px 12px;border-radius:8px">
+              <div style="color:#FCD34D;font-weight:700;margin-bottom:4px">🎥 视频案例 ②：周易 64 卦系列</div>
+              创作者用"豆包电脑版 + Seedance2.5"口述需求，AI 一次性输出<b>分镜表 + 配音台词 + 字幕 + 画面提示词 + BGM 建议</b>，首尾接龙保证连载画风统一，<b>几分钟出一条 30s 国风短视频</b>。
+            </div>
+          </div>
+        </div>
+        <div class="link-row" style="display:flex;flex-wrap:wrap;gap:8px">
+          <a class="btn-link" href="https://www.doubao.com/" target="_blank">🌐 豆包官网 <span class="arw">→</span></a>
+          <a class="btn-link" href="https://www.coze.cn/store/bot/7400698644007272484" target="_blank">🤖 扣子·抖音爆款标题神器 <span class="arw">→</span></a>
+          <a class="btn-link" href="https://www.coze.cn/store/bot/7372440229468454923" target="_blank">🤖 扣子·抖音文案提取 <span class="arw">→</span></a>
+          <a class="btn-link" href="https://www.doubao.com/pc/desktop-fission/pro-trial/invited?inviteCode=OpKUfQ8SCR" target="_blank">💻 豆包电脑版·高级权益 <span class="arw">→</span></a>
+          <a class="btn-link" href="https://ima.qq.com/wiki/?shareId=a96d62835f9f5a39500b70e10dbbdb1af0168ff3b7141bcafcf343fff4a9208b" target="_blank">📰 完整图文案例 <span class="arw">→</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 实战案例的总结 -->
+  <div style="background:linear-gradient(165deg,rgba(251,191,36,.10),rgba(168,85,247,.08));border:1px solid rgba(251,191,36,.30);border-radius:16px;padding:22px 26px;margin-top:10px">
+    <div style="font-size:15px;font-weight:800;color:#FCD34D;margin-bottom:10px">★ 这 6 个案例的共性启示</div>
+    <div style="font-size:12.8px;color:#E2E8F0;line-height:1.85">
+      ① <b style="color:#FBBF24">都不是"高大上"系统</b>——是某个人在某个周末为了解决自己的痛点搭出来的<br>
+      ② <b style="color:#FBBF24">都不是"AI 取代人"</b>——是让 AI 替人处理"流程 + 数据 + 重复"，人保留专业判断<br>
+      ③ <b style="color:#FBBF24">都遵循同一套范式</b>：可视化输入 → 自动测算/生成 → 结果可视化 → 决策建议<br>
+      ④ <b style="color:#FBBF24">都用零代码/低代码工具搭建</b>：扣子、秒哒、WorkBuddy——任何人能学得会<br>
+      ⑤ <b style="color:#FBBF24">都强调"真实场景"</b>：从某个具体业务问题出发，不做"为了 AI 而 AI"
+    </div>
+    <div style="margin-top:18px;font-size:12.5px;color:#A9BBDD;border-top:1px dashed rgba(251,191,36,.24);padding-top:14px">
+      💡 <b style="color:#FCD34D">给你的建议</b>：先用 6 个真实应用找到"啊，原来这就是 AI 工作台"的感觉，再用前面 12 个参考案例的方法论套到自己的场景里。
+    </div>
+  </div>
+</section>
+<!-- ============== PART 05 END ============== -->
+
+</div><!-- /wrap -->
+
+<div class="ending">
+  <h2>别做"用过 AI 的人"，<span class="grad">做"做出 AI 的人"</span></h2>
+  <p>你的场景不必宏大，但它必须真实、必须是你在用的。<br>从一个真痛点出发，把它做成一个跑得起来的工作台，就是最打动人的作品。</p>
+  <div class="three">
+    <div><b>STEP 01</b>选一个你每天都在烦的小事</div>
+    <div><b>STEP 02</b>从上面 18 个案例里找最像的一个</div>
+    <div><b>STEP 03</b>照着搭一遍，再改成你自己的</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="footnote">
+    <b>案例来源说明：</b>本案例集中标注"真实案例 / 真实数据"的部分，取自各平台官方发布的公开客户实践与公开媒体报道（含上海思创、得助智能、中国移动、WPS 365、新华三、常熟农商行、数商云、台湾经济新报等）；扣子 Coze 部分参考其商店公开上架、可公开体验的作品。<br>
+    <b>免责提示：</b>AI 工具能力与界面会随版本更新变化，案例中的"工作台界面示意"为便于理解所做的示意性绘制，实际以各平台最新版本为准；外部链接可能因平台调整而变化，如失效请以平台官网为准。<br>
+    <b>主办：</b>亮创集团 AI 创新大赛组委会 &nbsp;|&nbsp; <b>用途：</b>参赛报名参考，请勿外传。
+  </div>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
