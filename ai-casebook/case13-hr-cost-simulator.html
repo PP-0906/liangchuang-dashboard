@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人力成本战略测算系统 | HR Cost Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f1f5f9; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .input-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .input-field {
+            transition: all 0.2s;
+            border: 1px solid #cbd5e1;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .kpi-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .warning-pulse {
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        .scheme-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .scheme-a { background: #dbeafe; color: #1e40af; }
+        .scheme-b { background: #dcfce7; color: #166534; }
+        .add-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s;
+        }
+        .add-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .remove-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .plan-row:hover .remove-btn {
+            opacity: 1;
+        }
+        .chart-container {
+            position: relative;
+            height: 380px;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                    HR
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">人力成本战略测算系统</h1>
+                    <p class="text-xs text-slate-500 font-medium">HR Cost Strategic Simulator v2.1</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="app.exportData()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    导出JSON
+                </button>
+                <label class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    导入JSON
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="app.importData(this)">
+                </label>
+                <button onclick="app.resetAll()" class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                    重置全部
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto px-6 py-6 grid grid-cols-12 gap-6">
+
+        <!-- Left Sidebar: Controls -->
+        <div class="col-span-12 lg:col-span-3 space-y-6">
+
+            <!-- Scheme Manager -->
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        方案管理
+                    </h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                        <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-bold text-blue-900 truncate">方案一：激进扩张</div>
+                            <div class="text-xs text-blue-700 truncate" id="schemeASummary">未保存</div>
+                        </div>
+                        <button onclick="app.saveScheme('A')" class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition shrink-0">保存</button>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 rounded-lg bg-green-50 border border-green-200">
+                        <div class="w-3 h-3 rounded-full bg-green-600"></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-bold text-green-900 truncate">方案二：保守维持</div>
+                            <div class="text-xs text-green-700 truncate" id="schemeBSummary">未保存</div>
+                        </div>
+                        <button onclick="app.saveScheme('B')" class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition shrink-0">保存</button>
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <button onclick="app.loadScheme('A')" class="flex-1 py-2 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition">加载方案A</button>
+                        <button onclick="app.loadScheme('B')" class="flex-1 py-2 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition">加载方案B</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Settings -->
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    基础参数设置
+                </h3>
+                <div class="space-y-4">
+                    <div class="input-group">
+                        <label>五险一金企业缴存总比例 (%)</label>
+                        <input type="number" id="insuranceRate" value="32" step="0.1" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono" oninput="app.update()">
+                    </div>
+                    <div class="input-group">
+                        <label>平均个税估算比例 (%)</label>
+                        <input type="number" id="taxRate" value="8" step="0.1" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono" oninput="app.update()">
+                    </div>
+                    <div class="input-group">
+                        <label>企业自定福利综合系数 (%)</label>
+                        <input type="number" id="welfareRate" value="5" step="0.1" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono" oninput="app.update()">
+                        <p class="text-[10px] text-slate-400 mt-1">包含餐补、交通、通讯、体检等</p>
+                    </div>
+                    <div class="input-group">
+                        <label>全局平均调薪比例 (%)</label>
+                        <input type="number" id="raiseRate" value="5" step="0.1" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono" oninput="app.update()">
+                    </div>
+                    <div class="input-group">
+                        <label>预计年终奖月数</label>
+                        <input type="number" id="bonusMonths" value="2" step="0.5" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono" oninput="app.update()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategy Targets -->
+            <div class="glass-panel rounded-xl p-5 shadow-sm border-l-4 border-indigo-500">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    战略目标约束
+                </h3>
+                <div class="space-y-4">
+                    <div class="input-group">
+                        <label>目标财年营收 (万元)</label>
+                        <input type="number" id="revenueTarget" value="5000" step="100" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono font-bold text-indigo-700" oninput="app.update()">
+                    </div>
+                    <div class="input-group">
+                        <label>期望人事费用率上限 (%)</label>
+                        <input type="number" id="hrRateLimit" value="25" step="0.1" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono font-bold text-indigo-700" oninput="app.update()">
+                    </div>
+                    <div class="mt-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                        <div class="text-xs text-indigo-600 font-semibold mb-1">战略预算红线</div>
+                        <div class="text-lg font-bold text-indigo-900 font-mono" id="budgetRedLine">¥ 0</div>
+                        <div class="text-[10px] text-indigo-500 mt-1">营收目标 × 人事费用率上限</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: Headcount & Plans -->
+        <div class="col-span-12 lg:col-span-5 space-y-6">
+
+            <!-- Current Base -->
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    现有基数
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label>当前在职总人数</label>
+                        <input type="number" id="currentHeadcount" value="120" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono" oninput="app.update()">
+                    </div>
+                    <div class="input-group">
+                        <label>当前月度总薪酬 (万元)</label>
+                        <input type="number" id="currentMonthlyPay" value="180" step="1" class="input-field w-full px-3 py-2 rounded-lg text-sm font-mono" oninput="app.update()">
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                    <span>人均月薪:</span>
+                    <span class="font-mono font-bold text-slate-700" id="avgSalaryPerPerson">¥ 0</span>
+                </div>
+            </div>
+
+            <!-- New Hire Plans -->
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        新增编制规划
+                    </h3>
+                    <button onclick="app.addPlan()" class="add-btn px-4 py-2 text-white text-sm font-medium rounded-lg flex items-center gap-1 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        添加计划
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-xs text-slate-500 border-b border-slate-200">
+                                <th class="text-left py-2 px-2">岗位序列</th>
+                                <th class="text-left py-2 px-2">人数</th>
+                                <th class="text-left py-2 px-2">到岗月</th>
+                                <th class="text-left py-2 px-2">月薪(万)</th>
+                                <th class="w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="plansTableBody" class="divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyPlans" class="hidden py-8 text-center text-slate-400 text-sm">
+                    暂无新增编制计划，点击右上角添加
+                </div>
+            </div>
+
+            <!-- Monthly Breakdown Table -->
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    月度成本推演明细
+                </h3>
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                    <table class="w-full text-sm">
+                        <thead class="sticky top-0 bg-white z-10">
+                            <tr class="text-xs text-slate-500 border-b border-slate-200">
+                                <th class="text-left py-2 px-2">月份</th>
+                                <th class="text-right py-2 px-2">人数</th>
+                                <th class="text-right py-2 px-2">月度薪酬</th>
+                                <th class="text-right py-2 px-2">五险一金</th>
+                                <th class="text-right py-2 px-2">福利</th>
+                                <th class="text-right py-2 px-2">年终奖</th>
+                                <th class="text-right py-2 px-2 font-bold">总成本</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyTableBody" class="divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Dashboard -->
+        <div class="col-span-12 lg:col-span-4 space-y-6">
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="kpi-card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                    <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">总预计人力成本</div>
+                    <div class="text-xl font-bold text-slate-900 font-mono" id="kpiTotalCost">¥ 0</div>
+                    <div class="text-[10px] text-slate-400 mt-1">未来12个月累计</div>
+                </div>
+                <div class="kpi-card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                    <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">人均人力成本</div>
+                    <div class="text-xl font-bold text-slate-900 font-mono" id="kpiAvgCost">¥ 0</div>
+                    <div class="text-[10px] text-slate-400 mt-1">年化人均</div>
+                </div>
+                <div class="kpi-card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                    <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">当前人事费用率</div>
+                    <div class="text-xl font-bold font-mono" id="kpiHrRate">0%</div>
+                    <div class="text-[10px] text-slate-400 mt-1">占营收目标比例</div>
+                </div>
+                <div class="kpi-card bg-white rounded-xl p-4 shadow-sm border border-slate-200" id="kpiGapCard">
+                    <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">与预算红线差额</div>
+                    <div class="text-xl font-bold font-mono" id="kpiGap">¥ 0</div>
+                    <div class="text-[10px] mt-1" id="kpiGapStatus">正常范围内</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 text-sm">累计人力成本增长曲线</h3>
+                <div class="chart-container">
+                    <canvas id="cumulativeChart"></canvas>
+                </div>
+                <div class="mt-3 flex items-center justify-center gap-4 text-xs">
+                    <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-blue-500"></div><span>当前方案</span></div>
+                    <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-blue-200"></div><span>方案A</span></div>
+                    <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-green-300"></div><span>方案B</span></div>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 text-sm">月度成本结构对比</h3>
+                <div class="chart-container" style="height: 280px;">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 text-sm">编制人数变化趋势</h3>
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="headcountChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const app = (() => {
+            const defaultState = {
+                global: {
+                    insuranceRate: 32,
+                    taxRate: 8,
+                    welfareRate: 5,
+                    raiseRate: 5,
+                    bonusMonths: 2,
+                    revenueTarget: 5000,
+                    hrRateLimit: 25
+                },
+                base: {
+                    currentHeadcount: 120,
+                    currentMonthlyPay: 180
+                },
+                plans: [
+                    { id: '1', sequence: '研发', count: 15, month: 3, salary: 2.5 },
+                    { id: '2', sequence: '销售', count: 8, month: 5, salary: 1.8 },
+                    { id: '3', sequence: '运营', count: 5, month: 6, salary: 1.2 }
+                ],
+                schemes: { A: null, B: null }
+            };
+
+            let state = JSON.parse(JSON.stringify(defaultState));
+            let charts = {};
+
+            const fmtMoney = (num) => {
+                if (num >= 10000) return '¥ ' + (num / 10000).toFixed(2) + '万';
+                return '¥ ' + num.toFixed(0);
+            };
+
+            const fmtWan = (num) => '¥ ' + (num).toFixed(2) + '万';
+            const uid = () => Date.now() + Math.random().toString(36).substr(2, 5);
+
+            const loadStorage = () => {
+                try {
+                    const saved = localStorage.getItem('hrCostSimulator_v2');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        state = { ...defaultState, ...parsed };
+                        if (!state.schemes) state.schemes = { A: null, B: null };
+                    }
+                } catch (e) { console.error('Load error', e); }
+            };
+
+            const saveStorage = () => {
+                try {
+                    localStorage.setItem('hrCostSimulator_v2', JSON.stringify(state));
+                } catch (e) { console.error('Save error', e); }
+            };
+
+            const getInputs = () => ({
+                insuranceRate: parseFloat(document.getElementById('insuranceRate').value) || 0,
+                taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
+                welfareRate: parseFloat(document.getElementById('welfareRate').value) || 0,
+                raiseRate: parseFloat(document.getElementById('raiseRate').value) || 0,
+                bonusMonths: parseFloat(document.getElementById('bonusMonths').value) || 0,
+                revenueTarget: parseFloat(document.getElementById('revenueTarget').value) || 0,
+                hrRateLimit: parseFloat(document.getElementById('hrRateLimit').value) || 0,
+                currentHeadcount: parseInt(document.getElementById('currentHeadcount').value) || 0,
+                currentMonthlyPay: parseFloat(document.getElementById('currentMonthlyPay').value) || 0
+            });
+
+            const calculate = (inputData, planData) => {
+                let currentHeadcount = inputData.currentHeadcount;
+                let currentMonthlyPay = inputData.currentMonthlyPay;
+                const employerMultiplier = 1 + (inputData.insuranceRate / 100) + (inputData.welfareRate / 100);
+                const monthlyData = [];
+                let cumulativeCost = 0;
+                let totalBonusCost = 0;
+
+                for (let m = 1; m <= 12; m++) {
+                    if (m === 1) {
+                        currentMonthlyPay = currentMonthlyPay * (1 + inputData.raiseRate / 100);
+                    }
+
+                    const newHires = planData.filter(p => p.month === m);
+                    let newHeadcount = 0;
+                    let newMonthlyPay = 0;
+
+                    newHires.forEach(p => {
+                        newHeadcount += p.count;
+                        newMonthlyPay += p.count * p.salary;
+                    });
+
+                    currentHeadcount += newHeadcount;
+                    currentMonthlyPay += newMonthlyPay;
+
+                    const baseSalary = currentMonthlyPay;
+                    const insuranceCost = baseSalary * (inputData.insuranceRate / 100);
+                    const welfareCost = baseSalary * (inputData.welfareRate / 100);
+                    const taxCost = baseSalary * (inputData.taxRate / 100);
+
+                    const monthlyTotal = baseSalary + insuranceCost + welfareCost;
+                    let bonusThisMonth = 0;
+
+                    if (m === 12) {
+                        const avgMonthlySalary = currentHeadcount > 0 ? currentMonthlyPay / currentHeadcount : 0;
+                        bonusThisMonth = currentHeadcount * avgMonthlySalary * inputData.bonusMonths;
+                        totalBonusCost = bonusThisMonth;
+                    }
+
+                    const monthTotalWithBonus = monthlyTotal + bonusThisMonth;
+                    cumulativeCost += monthTotalWithBonus;
+
+                    monthlyData.push({
+                        month: m,
+                        headcount: currentHeadcount,
+                        baseSalary: baseSalary,
+                        insurance: insuranceCost,
+                        welfare: welfareCost,
+                        tax: taxCost,
+                        bonus: bonusThisMonth,
+                        monthlyTotal: monthlyTotal,
+                        monthTotalWithBonus: monthTotalWithBonus,
+                        cumulative: cumulativeCost
+                    });
+                }
+
+                return {
+                    monthly: monthlyData,
+                    totalAnnualCost: cumulativeCost,
+                    totalBonus: totalBonusCost,
+                    finalHeadcount: currentHeadcount,
+                    avgAnnualCostPerCapita: currentHeadcount > 0 ? cumulativeCost / currentHeadcount : 0
+                };
+            };
+
+            const renderPlans = () => {
+                const tbody = document.getElementById('plansTableBody');
+                const empty = document.getElementById('emptyPlans');
+
+                if (state.plans.length === 0) {
+                    tbody.innerHTML = '';
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                empty.classList.add('hidden');
+                tbody.innerHTML = state.plans.map(plan => `
+                    <tr class="plan-row group hover:bg-slate-50 transition-colors">
+                        <td class="py-2 px-2">
+                            <input type="text" value="${plan.sequence}" class="input-field w-full px-2 py-1 rounded text-sm" onchange="app.updatePlan('${plan.id}', 'sequence', this.value)">
+                        </td>
+                        <td class="py-2 px-2">
+                            <input type="number" value="${plan.count}" min="1" class="input-field w-20 px-2 py-1 rounded text-sm font-mono" onchange="app.updatePlan('${plan.id}', 'count', this.value)">
+                        </td>
+                        <td class="py-2 px-2">
+                            <select class="input-field w-20 px-2 py-1 rounded text-sm font-mono" onchange="app.updatePlan('${plan.id}', 'month', this.value)">
+                                ${Array.from({length: 12}, (_, i) => `<option value="${i+1}" ${plan.month === i+1 ? 'selected' : ''}>${i+1}月</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="py-2 px-2">
+                            <input type="number" value="${plan.salary}" step="0.1" class="input-field w-24 px-2 py-1 rounded text-sm font-mono" onchange="app.updatePlan('${plan.id}', 'salary', this.value)">
+                        </td>
+                        <td class="py-2 px-2 text-center">
+                            <button onclick="app.removePlan('${plan.id}')" class="remove-btn text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            };
+
+            const renderMonthlyTable = (data) => {
+                const tbody = document.getElementById('monthlyTableBody');
+                tbody.innerHTML = data.monthly.map((m, idx) => `
+                    <tr class="hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}">
+                        <td class="py-2 px-2 font-medium text-slate-700">${m.month}月</td>
+                        <td class="py-2 px-2 text-right font-mono text-slate-600">${m.headcount}</td>
+                        <td class="py-2 px-2 text-right font-mono text-slate-600">${fmtWan(m.baseSalary)}</td>
+                        <td class="py-2 px-2 text-right font-mono text-slate-500">${fmtWan(m.insurance)}</td>
+                        <td class="py-2 px-2 text-right font-mono text-slate-500">${fmtWan(m.welfare)}</td>
+                        <td class="py-2 px-2 text-right font-mono ${m.bonus > 0 ? 'text-orange-600 font-bold' : 'text-slate-300'}">${m.bonus > 0 ? fmtWan(m.bonus) : '-'}</td>
+                        <td class="py-2 px-2 text-right font-mono font-bold text-slate-800">${fmtWan(m.monthTotalWithBonus)}</td>
+                    </tr>
+                `).join('');
+            };
+
+            const updateKPI = (result, inputs) => {
+                const budgetRedLine = inputs.revenueTarget * (inputs.hrRateLimit / 100);
+                const hrRate = inputs.revenueTarget > 0 ? (result.totalAnnualCost / inputs.revenueTarget) * 100 : 0;
+                const gap = budgetRedLine - result.totalAnnualCost;
+
+                document.getElementById('budgetRedLine').textContent = fmtWan(budgetRedLine);
+                document.getElementById('kpiTotalCost').textContent = fmtWan(result.totalAnnualCost);
+                document.getElementById('kpiAvgCost').textContent = fmtMoney(result.avgAnnualCostPerCapita);
+
+                const rateEl = document.getElementById('kpiHrRate');
+                rateEl.textContent = hrRate.toFixed(2) + '%';
+                rateEl.className = 'text-xl font-bold font-mono ' + (hrRate > inputs.hrRateLimit ? 'text-red-600' : 'text-emerald-600');
+
+                const gapEl = document.getElementById('kpiGap');
+                const gapStatus = document.getElementById('kpiGapStatus');
+                const gapCard = document.getElementById('kpiGapCard');
+
+                if (gap < 0) {
+                    gapEl.textContent = fmtWan(Math.abs(gap));
+                    gapEl.className = 'text-xl font-bold font-mono text-red-600';
+                    gapStatus.textContent = '已超支';
+                    gapStatus.className = 'text-[10px] mt-1 text-red-500 font-semibold';
+                    gapCard.classList.add('warning-pulse', 'border-red-300', 'bg-red-50');
+                    gapCard.classList.remove('border-slate-200', 'bg-white');
+                } else {
+                    gapEl.textContent = fmtWan(gap);
+                    gapEl.className = 'text-xl font-bold font-mono text-emerald-600';
+                    gapStatus.textContent = '剩余预算';
+                    gapStatus.className = 'text-[10px] mt-1 text-emerald-500 font-semibold';
+                    gapCard.classList.remove('warning-pulse', 'border-red-300', 'bg-red-50');
+                    gapCard.classList.add('border-slate-200', 'bg-white');
+                }
+
+                document.getElementById('avgSalaryPerPerson').textContent = inputs.currentHeadcount > 0 ? fmtMoney(inputs.currentMonthlyPay * 10000 / inputs.currentHeadcount) : '¥ 0';
+            };
+
+            const updateSchemeSummaries = () => {
+                const summarize = (scheme) => {
+                    if (!scheme) return '未保存';
+                    const totalCost = scheme.data.monthly.reduce((a, b) => a + b.monthTotalWithBonus, 0);
+                    return `成本: ${fmtWan(totalCost)} | 期末: ${scheme.data.finalHeadcount}人`;
+                };
+                document.getElementById('schemeASummary').textContent = summarize(state.schemes.A);
+                document.getElementById('schemeBSummary').textContent = summarize(state.schemes.B);
+            };
+
+            const updateCharts = (currentResult, inputs) => {
+                const ctxCumulative = document.getElementById('cumulativeChart').getContext('2d');
+                const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+                const ctxHeadcount = document.getElementById('headcountChart').getContext('2d');
+
+                const labels = Array.from({length: 12}, (_, i) => `${i+1}月`);
+                const currentCumulative = currentResult.monthly.map(m => m.cumulative);
+                const currentMonthly = currentResult.monthly.map(m => m.monthTotalWithBonus);
+                const currentHeadcountData = currentResult.monthly.map(m => m.headcount);
+
+                const schemeAData = state.schemes.A ? state.schemes.A.data.monthly.map(m => m.cumulative) : null;
+                const schemeBData = state.schemes.B ? state.schemes.B.data.monthly.map(m => m.cumulative) : null;
+                const budgetRedLineValue = inputs.revenueTarget * (inputs.hrRateLimit / 100);
+
+                const commonOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 11 },
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + fmtWan(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: {
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                font: { size: 10 },
+                                callback: function(value) { return value >= 10000 ? (value/10000).toFixed(0) + '万' : value; }
+                            }
+                        }
+                    }
+                };
+
+                // Cumulative Chart
+                if (charts.cumulative) charts.cumulative.destroy();
+
+                const cumulativeDatasets = [{
+                    label: '当前方案',
+                    data: currentCumulative,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3b82f6',
+                    order: 1
+                }];
+
+                // Budget red line as a dataset instead of annotation plugin
+                if (budgetRedLineValue > 0) {
+                    cumulativeDatasets.push({
+                        label: '预算红线',
+                        data: Array(12).fill(budgetRedLineValue),
+                        borderColor: 'rgba(239, 68, 68, 0.6)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [6, 6],
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        order: 0
+                    });
+                }
+
+                if (schemeAData) {
+                    cumulativeDatasets.push({
+                        label: '方案A',
+                        data: schemeAData,
+                        borderColor: '#93c5fd',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#93c5fd',
+                        order: 2
+                    });
+                }
+
+                if (schemeBData) {
+                    cumulativeDatasets.push({
+                        label: '方案B',
+                        data: schemeBData,
+                        borderColor: '#86efac',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [2, 2],
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#86efac',
+                        order: 3
+                    });
+                }
+
+                charts.cumulative = new Chart(ctxCumulative, {
+                    type: 'line',
+                    data: { labels, datasets: cumulativeDatasets },
+                    options: commonOptions
+                });
+
+                // Monthly Cost Chart (Stacked bar)
+                if (charts.monthly) charts.monthly.destroy();
+                charts.monthly = new Chart(ctxMonthly, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: '基础薪酬',
+                                data: currentResult.monthly.map(m => m.baseSalary),
+                                backgroundColor: '#3b82f6',
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: '五险一金',
+                                data: currentResult.monthly.map(m => m.insurance),
+                                backgroundColor: '#60a5fa',
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: '企业福利',
+                                data: currentResult.monthly.map(m => m.welfare),
+                                backgroundColor: '#93c5fd',
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: '年终奖',
+                                data: currentResult.monthly.map(m => m.bonus),
+                                backgroundColor: '#f97316',
+                                stack: 'Stack 0'
+                            }
+                        ]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+                            y: {
+                                stacked: true,
+                                grid: { color: '#f1f5f9' },
+                                ticks: { font: { size: 10 }, callback: function(value) { return value >= 10000 ? (value/10000).toFixed(0) + '万' : value; } }
+                            }
+                        }
+                    }
+                });
+
+                // Headcount Chart
+                if (charts.headcount) charts.headcount.destroy();
+                charts.headcount = new Chart(ctxHeadcount, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: '在职人数',
+                            data: currentHeadcountData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#10b981'
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                            y: { grid: { color: '#f1f5f9' }, ticks: { stepSize: 10, font: { size: 10 } } }
+                        }
+                    }
+                });
+            };
+
+            const update = () => {
+                const inputs = getInputs();
+
+                state.global = {
+                    insuranceRate: inputs.insuranceRate,
+                    taxRate: inputs.taxRate,
+                    welfareRate: inputs.welfareRate,
+                    raiseRate: inputs.raiseRate,
+                    bonusMonths: inputs.bonusMonths,
+                    revenueTarget: inputs.revenueTarget,
+                    hrRateLimit: inputs.hrRateLimit
+                };
+                state.base = {
+                    currentHeadcount: inputs.currentHeadcount,
+                    currentMonthlyPay: inputs.currentMonthlyPay
+                };
+
+                const result = calculate(inputs, state.plans);
+
+                renderPlans();
+                renderMonthlyTable(result);
+                updateKPI(result, inputs);
+                updateSchemeSummaries();
+                updateCharts(result, inputs);
+
+                saveStorage();
+            };
+
+            const addPlan = () => {
+                state.plans.push({
+                    id: uid(),
+                    sequence: '新增序列',
+                    count: 1,
+                    month: 1,
+                    salary: 1.0
+                });
+                update();
+            };
+
+            const removePlan = (id) => {
+                state.plans = state.plans.filter(p => p.id !== id);
+                update();
+            };
+
+            const updatePlan = (id, field, value) => {
+                const plan = state.plans.find(p => p.id === id);
+                if (plan) {
+                    if (field === 'sequence') plan.sequence = value;
+                    else if (field === 'count') plan.count = parseInt(value) || 0;
+                    else if (field === 'month') plan.month = parseInt(value) || 1;
+                    else if (field === 'salary') plan.salary = parseFloat(value) || 0;
+                }
+                update();
+            };
+
+            const saveScheme = (schemeId) => {
+                const inputs = getInputs();
+                const result = calculate(inputs, state.plans);
+                state.schemes[schemeId] = {
+                    timestamp: new Date().toISOString(),
+                    global: { ...state.global },
+                    base: { ...state.base },
+                    plans: JSON.parse(JSON.stringify(state.plans)),
+                    data: result
+                };
+                update();
+
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '已保存!';
+                btn.classList.add('bg-slate-800');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('bg-slate-800');
+                }, 1500);
+            };
+
+            const loadScheme = (schemeId) => {
+                const scheme = state.schemes[schemeId];
+                if (!scheme) {
+                    alert('该方案尚未保存');
+                    return;
+                }
+
+                state.global = { ...scheme.global };
+                state.base = { ...scheme.base };
+                state.plans = JSON.parse(JSON.stringify(scheme.plans));
+
+                document.getElementById('insuranceRate').value = state.global.insuranceRate;
+                document.getElementById('taxRate').value = state.global.taxRate;
+                document.getElementById('welfareRate').value = state.global.welfareRate;
+                document.getElementById('raiseRate').value = state.global.raiseRate;
+                document.getElementById('bonusMonths').value = state.global.bonusMonths;
+                document.getElementById('revenueTarget').value = state.global.revenueTarget;
+                document.getElementById('hrRateLimit').value = state.global.hrRateLimit;
+                document.getElementById('currentHeadcount').value = state.base.currentHeadcount;
+                document.getElementById('currentMonthlyPay').value = state.base.currentMonthlyPay;
+
+                update();
+            };
+
+            const exportData = () => {
+                const dataStr = JSON.stringify(state, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `人力成本测算_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            const importData = (input) => {
+                const file = input.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (imported.global && imported.base && imported.plans) {
+                            state = { ...defaultState, ...imported };
+                            if (!state.schemes) state.schemes = { A: null, B: null };
+
+                            document.getElementById('insuranceRate').value = state.global.insuranceRate;
+                            document.getElementById('taxRate').value = state.global.taxRate;
+                            document.getElementById('welfareRate').value = state.global.welfareRate;
+                            document.getElementById('raiseRate').value = state.global.raiseRate;
+                            document.getElementById('bonusMonths').value = state.global.bonusMonths;
+                            document.getElementById('revenueTarget').value = state.global.revenueTarget;
+                            document.getElementById('hrRateLimit').value = state.global.hrRateLimit;
+                            document.getElementById('currentHeadcount').value = state.base.currentHeadcount;
+                            document.getElementById('currentMonthlyPay').value = state.base.currentMonthlyPay;
+
+                            update();
+                            alert('数据导入成功');
+                        } else {
+                            alert('文件格式不正确');
+                        }
+                    } catch (err) {
+                        alert('导入失败：' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+                input.value = '';
+            };
+
+            const resetAll = () => {
+                if (confirm('确定要重置所有数据吗？这将清除当前配置和保存的方案。')) {
+                    state = JSON.parse(JSON.stringify(defaultState));
+                    document.getElementById('insuranceRate').value = defaultState.global.insuranceRate;
+                    document.getElementById('taxRate').value = defaultState.global.taxRate;
+                    document.getElementById('welfareRate').value = defaultState.global.welfareRate;
+                    document.getElementById('raiseRate').value = defaultState.global.raiseRate;
+                    document.getElementById('bonusMonths').value = defaultState.global.bonusMonths;
+                    document.getElementById('revenueTarget').value = defaultState.global.revenueTarget;
+                    document.getElementById('hrRateLimit').value = defaultState.global.hrRateLimit;
+                    document.getElementById('currentHeadcount').value = defaultState.base.currentHeadcount;
+                    document.getElementById('currentMonthlyPay').value = defaultState.base.currentMonthlyPay;
+                    update();
+                }
+            };
+
+            const init = () => {
+                loadStorage();
+                document.getElementById('insuranceRate').value = state.global.insuranceRate;
+                document.getElementById('taxRate').value = state.global.taxRate;
+                document.getElementById('welfareRate').value = state.global.welfareRate;
+                document.getElementById('raiseRate').value = state.global.raiseRate;
+                document.getElementById('bonusMonths').value = state.global.bonusMonths;
+                document.getElementById('revenueTarget').value = state.global.revenueTarget;
+                document.getElementById('hrRateLimit').value = state.global.hrRateLimit;
+                document.getElementById('currentHeadcount').value = state.base.currentHeadcount;
+                document.getElementById('currentMonthlyPay').value = state.base.currentMonthlyPay;
+                update();
+            };
+
+            return {
+                init,
+                update,
+                addPlan,
+                removePlan,
+                updatePlan,
+                saveScheme,
+                loadScheme,
+                exportData,
+                importData,
+                resetAll
+            };
+        })();
+
+        document.addEventListener('DOMContentLoaded', app.init);
+    </script>
+</body>
+</html>
