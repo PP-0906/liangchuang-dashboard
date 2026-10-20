@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel 多表批量合并神器</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- FileSaver CDN (备用) -->
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  
+  <!-- 自定义 Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#E8F3FF',
+            neutral: '#F5F7FA',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .upload-border {
+        border: 2px dashed #C9D8EB;
+      }
+      .upload-border-active {
+        border-color: #165DFF;
+        background-color: #F0F7FF;
+      }
+      .table-cell {
+        @apply px-4 py-2 border border-gray-200 text-sm;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-neutral min-h-screen font-sans text-gray-800">
+  <div id="app" class="max-w-6xl mx-auto px-4 py-8">
+    <!-- 头部标题 -->
+    <header class="mb-8 text-center">
+      <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-primary mb-2">Excel 多表批量合并神器</h1>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        支持批量上传多个 Excel 文件，自动合并所有表格数据，并为每行数据添加来源文件名，方便追溯
+      </p>
+    </header>
+
+    <!-- 上传区域 -->
+    <section class="mb-8">
+      <div 
+        class="upload-border rounded-xl p-10 text-center transition-all duration-300 hover:upload-border-active bg-white shadow-sm"
+        @click="triggerFileInput"
+        @drop.prevent="handleDrop"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        :class="{ 'upload-border-active': isDragging }"
+      >
+        <input 
+          type="file" 
+          ref="fileInput"
+          class="hidden"
+          multiple
+          accept=".xlsx,.xls"
+          @change="handleFileSelect"
+        >
+        
+        <div class="flex flex-col items-center justify-center">
+          <svg class="w-16 h-16 text-primary mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 5L12 12L5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          
+          <h3 class="text-lg font-medium mb-2">点击或拖拽文件到此处上传</h3>
+          <p class="text-gray-500 mb-4">支持 .xlsx / .xls 格式，可同时上传多个文件</p>
+          
+          <button 
+            class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg transition-colors"
+            type="button"
+          >
+            选择文件
+          </button>
+          
+          <!-- 已选择文件数量 -->
+          <div v-if="selectedFiles.length > 0" class="mt-4 text-primary font-medium">
+            已选择 {{ selectedFiles.length }} 个文件
+          </div>
+        </div>
+      </div>
+      
+      <!-- 已选择文件列表 -->
+      <div v-if="selectedFiles.length > 0" class="mt-4 bg-white rounded-lg shadow-sm p-4 max-h-40 overflow-y-auto">
+        <h4 class="font-medium mb-2 text-gray-700">已选择文件：</h4>
+        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          <li v-for="(file, index) in selectedFiles" :key="index" class="flex items-center gap-2 text-sm text-gray-600">
+            <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 9H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ file.name }}
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 合并操作区域 -->
+    <section class="mb-8">
+      <button 
+        class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg transition-colors font-medium text-lg shadow-sm"
+        @click="mergeFiles"
+        :disabled="selectedFiles.length === 0 || isMerging"
+      >
+        <span v-if="isMerging">
+          <svg class="inline-block w-5 h-5 animate-spin mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="15 100" stroke-linecap="round"/>
+          </svg>
+          正在合并中...
+        </span>
+        <span v-else>开始合并所有文件</span>
+      </button>
+      
+      <!-- 合并状态提示 -->
+      <div v-if="mergeStatus" class="mt-4 text-center py-2 rounded-lg" :class="mergeSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+        {{ mergeStatus }}
+      </div>
+    </section>
+
+    <!-- 预览区域 -->
+    <section v-if="mergedData.length > 0" class="mb-12">
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="p-4 bg-secondary border-b border-gray-200">
+          <h3 class="font-medium text-primary">合并结果预览（前10条）</h3>
+          <p class="text-sm text-gray-600">总计：{{ mergedData.length }} 行数据</p>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="table-cell font-medium text-left">来源文件名</th>
+                <th v-for="header in previewHeaders" class="table-cell font-medium text-left">{{ header }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, index) in previewData" :key="index" class="hover:bg-gray-50">
+                <td class="table-cell font-medium">{{ row['来源文件名'] }}</td>
+                <td v-for="header in previewHeaders" class="table-cell">{{ row[header] || '' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 导出按钮 (固定底部) -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-lg py-4 px-4">
+      <div class="max-w-6xl mx-auto">
+        <button 
+          class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg transition-colors font-medium text-lg"
+          @click="exportMergedData"
+          :disabled="mergedData.length === 0"
+        >
+          导出合并结果 (merged_result.xlsx)
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      setup() {
+        // 响应式数据
+        const selectedFiles = Vue.ref([]);
+        const isDragging = Vue.ref(false);
+        const isMerging = Vue.ref(false);
+        const mergedData = Vue.ref([]);
+        const mergeStatus = Vue.ref('');
+        const mergeSuccess = Vue.ref(true);
+        const fileInput = Vue.ref(null);
+        const previewHeaders = Vue.ref([]);
+
+        // 触发文件选择框
+        const triggerFileInput = () => {
+          fileInput.value.click();
+        };
+
+        // 处理文件选择
+        const handleFileSelect = (e) => {
+          const files = Array.from(e.target.files);
+          if (files.length > 0) {
+            selectedFiles.value = files;
+            mergeStatus.value = ''; // 清空之前的状态
+            mergedData.value = []; // 清空之前的合并数据
+          }
+        };
+
+        // 处理拖拽上传
+        const handleDrop = (e) => {
+          isDragging.value = false;
+          const files = Array.from(e.dataTransfer.files).filter(file => 
+            file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+            file.type === 'application/vnd.ms-excel'
+          );
+          
+          if (files.length > 0) {
+            selectedFiles.value = files;
+            mergeStatus.value = '';
+            mergedData.value = [];
+          }
+        };
+
+        // 合并文件
+        const mergeFiles = async () => {
+          if (selectedFiles.value.length === 0) return;
+          
+          isMerging.value = true;
+          mergeStatus.value = '';
+          mergedData.value = [];
+          
+          try {
+            // 遍历所有文件
+            for (const file of selectedFiles.value) {
+              const data = await readExcelFile(file);
+              // 为每行数据添加来源文件名
+              const dataWithSource = data.map(row => ({
+                '来源文件名': file.name,
+                ...row
+              }));
+              mergedData.value = [...mergedData.value, ...dataWithSource];
+            }
+            
+            // 提取预览表头（排除来源文件名）
+            if (mergedData.value.length > 0) {
+              previewHeaders.value = Object.keys(mergedData.value[0]).filter(key => key !== '来源文件名');
+            }
+            
+            mergeSuccess.value = true;
+            mergeStatus.value = `合并成功，共 ${mergedData.value.length} 行数据`;
+          } catch (error) {
+            mergeSuccess.value = false;
+            mergeStatus.value = `合并失败：${error.message}`;
+            console.error('合并失败:', error);
+          } finally {
+            isMerging.value = false;
+          }
+        };
+
+        // 读取Excel文件
+        const readExcelFile = (file) => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+              try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                // 读取第一个sheet
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                // 转换为JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                resolve(jsonData);
+              } catch (error) {
+                reject(error);
+              }
+            };
+            
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
+          });
+        };
+
+        // 导出合并数据
+        const exportMergedData = () => {
+          if (mergedData.value.length === 0) return;
+          
+          try {
+            // 创建工作簿
+            const workbook = XLSX.utils.book_new();
+            // 创建工作表
+            const worksheet = XLSX.utils.json_to_sheet(mergedData.value);
+            // 将工作表添加到工作簿
+            XLSX.utils.book_append_sheet(workbook, worksheet, '合并结果');
+            // 导出文件
+            XLSX.writeFile(workbook, 'merged_result.xlsx');
+            
+            mergeStatus.value = '文件导出成功！';
+            mergeSuccess.value = true;
+          } catch (error) {
+            mergeStatus.value = `导出失败：${error.message}`;
+            mergeSuccess.value = false;
+            console.error('导出失败:', error);
+          }
+        };
+
+        // 预览数据（前10条）
+        const previewData = Vue.computed(() => {
+          return mergedData.value.slice(0, 10);
+        });
+
+        return {
+          selectedFiles,
+          isDragging,
+          isMerging,
+          mergedData,
+          mergeStatus,
+          mergeSuccess,
+          fileInput,
+          previewHeaders,
+          previewData,
+          triggerFileInput,
+          handleFileSelect,
+          handleDrop,
+          mergeFiles,
+          exportMergedData
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
