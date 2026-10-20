@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人才盘点九宫格自动落位看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        .grid-cell {
+            transition: all 0.3s ease;
+        }
+        
+        .grid-cell.drag-over {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .employee-tag {
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .employee-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .employee-tag:active {
+            cursor: grabbing;
+        }
+        
+        .employee-tag.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+        
+        .drop-zone-active {
+            border: 2px dashed #3b82f6 !important;
+            background-color: rgba(59, 130, 246, 0.1) !important;
+        }
+        
+        .cell-content {
+            max-height: 100%;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        
+        .cell-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .cell-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+        
+        .cell-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+        
+        .axis-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- 标题 -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">人才盘点九宫格自动落位看板</h1>
+            <p class="text-gray-500">上传Excel表格，自动生成人才九宫格落位图，支持拖拽调整</p>
+        </div>
+
+        <!-- 文件上传区域 -->
+        <div id="uploadArea" class="bg-white rounded-xl shadow-md p-6 mb-6 border-2 border-dashed border-gray-300 transition-all hover:border-blue-400">
+            <div class="flex flex-col items-center justify-center py-4">
+                <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <p class="text-gray-600 mb-2">拖拽 Excel / CSV 文件到此处，或</p>
+                <label class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    点击选择文件
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="hidden">
+                </label>
+                <p class="text-xs text-gray-400 mt-3">支持 .xlsx / .xls / .csv 格式，自动识别姓名列与九宫格数字列</p>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div id="statsBar" class="hidden bg-white rounded-xl shadow-md p-4 mb-6">
+            <div class="flex flex-wrap gap-6 justify-center">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-800" id="totalCount">0</div>
+                    <div class="text-sm text-gray-500">总人数</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600" id="purpleCount">0</div>
+                    <div class="text-sm text-gray-500">核心人才（紫）</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600" id="blueCount">0</div>
+                    <div class="text-sm text-gray-500">骨干力量（蓝）</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600" id="greenCount">0</div>
+                    <div class="text-sm text-gray-500">待提升（绿）</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 九宫格主体 -->
+        <div id="gridContainer" class="hidden">
+            <div class="flex">
+                <!-- Y轴标签 -->
+                <div class="flex flex-col justify-around items-center pr-3">
+                    <div class="axis-label text-sm font-medium text-gray-600">高绩效</div>
+                    <div class="axis-label text-sm font-medium text-gray-600">中绩效</div>
+                    <div class="axis-label text-sm font-medium text-gray-600">低绩效</div>
+                    <div class="axis-label text-sm font-bold text-gray-700 mt-2">绩效 →</div>
+                </div>
+
+                <!-- 九宫格网格 -->
+                <div class="flex-1">
+                    <!-- X轴顶部标签 -->
+                    <div class="grid grid-cols-3 gap-2 mb-2 px-1">
+                        <div class="text-center text-sm font-medium text-gray-600">低潜力</div>
+                        <div class="text-center text-sm font-medium text-gray-600">中潜力</div>
+                        <div class="text-center text-sm font-medium text-gray-600">高潜力</div>
+                    </div>
+
+                    <!-- 格子区域 -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- 第一行：高绩效 -->
+                        <div class="grid-cell bg-blue-500 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="6">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">熟练员工</div>
+                                <div class="text-xs opacity-75">格子 6</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="6"></div>
+                        </div>
+                        <div class="grid-cell bg-purple-500 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="8">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">绩效之星</div>
+                                <div class="text-xs opacity-75">格子 8</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="8"></div>
+                        </div>
+                        <div class="grid-cell bg-purple-600 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="9">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">超级明星</div>
+                                <div class="text-xs opacity-75">格子 9</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="9"></div>
+                        </div>
+
+                        <!-- 第二行：中绩效 -->
+                        <div class="grid-cell bg-green-500 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="3">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">基本胜任</div>
+                                <div class="text-xs opacity-75">格子 3</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="3"></div>
+                        </div>
+                        <div class="grid-cell bg-blue-500 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="5">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">中坚力量</div>
+                                <div class="text-xs opacity-75">格子 5</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="5"></div>
+                        </div>
+                        <div class="grid-cell bg-purple-500 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="7">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">潜力之星</div>
+                                <div class="text-xs opacity-75">格子 7</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="7"></div>
+                        </div>
+
+                        <!-- 第三行：低绩效 -->
+                        <div class="grid-cell bg-green-600 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="1">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">问题员工</div>
+                                <div class="text-xs opacity-75">格子 1</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="1"></div>
+                        </div>
+                        <div class="grid-cell bg-green-500 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="2">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">差距员工</div>
+                                <div class="text-xs opacity-75">格子 2</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="2"></div>
+                        </div>
+                        <div class="grid-cell bg-blue-500 rounded-lg p-3 min-h-[200px] flex flex-col" data-cell="4">
+                            <div class="text-white font-bold text-center mb-2 pb-2 border-b border-white/20">
+                                <div class="text-base">待发展者</div>
+                                <div class="text-xs opacity-75">格子 4</div>
+                            </div>
+                            <div class="cell-content flex flex-wrap gap-1.5 content-start flex-1" data-cell="4"></div>
+                        </div>
+                    </div>
+
+                    <!-- X轴底部标签 -->
+                    <div class="text-center text-sm font-bold text-gray-700 mt-2">潜力 →</div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="resetBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    重置数据
+                </button>
+                <button id="exportBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    导出调整结果
+                </button>
+            </div>
+        </div>
+
+        <!-- 空状态提示 -->
+        <div id="emptyState" class="bg-white rounded-xl shadow-md p-12 text-center">
+            <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p class="text-gray-400 text-lg">请上传Excel文件以生成九宫格落位图</p>
+            <p class="text-gray-300 text-sm mt-2">表格需包含员工姓名列和九宫格编号列（1-9）</p>
+        </div>
+    </div>
+
+    <script>
+        // 全局数据存储
+        let employeeData = [];
+        let draggedElement = null;
+        let draggedCell = null;
+
+        // DOM 元素
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const gridContainer = document.getElementById('gridContainer');
+        const emptyState = document.getElementById('emptyState');
+        const statsBar = document.getElementById('statsBar');
+        const resetBtn = document.getElementById('resetBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        // 拖拽上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drop-zone-active');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drop-zone-active');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drop-zone-active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // 处理文件
+        function handleFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    if (jsonData.length === 0) {
+                        alert('表格中没有数据');
+                        return;
+                    }
+
+                    // 智能识别列
+                    const columns = Object.keys(jsonData[0]);
+                    let nameCol = null;
+                    let boxCol = null;
+
+                    for (const col of columns) {
+                        const colLower = col.toLowerCase();
+                        if (!nameCol && (colLower.includes('姓') || colLower.includes('name'))) {
+                            nameCol = col;
+                        }
+                        if (!boxCol && (colLower.includes('九宫格') || colLower.includes('数字') || 
+                            colLower.includes('编号') || colLower.includes('位置') || colLower.includes('box'))) {
+                            boxCol = col;
+                        }
+                    }
+
+                    if (!nameCol) {
+                        alert('未识别到姓名列，请确保表格包含"姓名"或"name"相关列名');
+                        return;
+                    }
+                    if (!boxCol) {
+                        alert('未识别到九宫格列，请确保表格包含"九宫格"/"数字"/"编号"/"位置"相关列名');
+                        return;
+                    }
+
+                    // 处理数据
+                    employeeData = jsonData.map(row => ({
+                        name: String(row[nameCol]).trim(),
+                        box: parseInt(row[boxCol])
+                    })).filter(item => item.name && !isNaN(item.box) && item.box >= 1 && item.box <= 9);
+
+                    if (employeeData.length === 0) {
+                        alert('未找到有效的员工数据（九宫格编号需为1-9的数字）');
+                        return;
+                    }
+
+                    renderGrid();
+                    updateStats();
+                    
+                    emptyState.classList.add('hidden');
+                    gridContainer.classList.remove('hidden');
+                    statsBar.classList.remove('hidden');
+
+                } catch (error) {
+                    console.error(error);
+                    alert('文件解析失败，请检查文件格式是否正确');
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 渲染九宫格
+        function renderGrid() {
+            // 清空所有格子
+            document.querySelectorAll('.cell-content').forEach(cell => {
+                cell.innerHTML = '';
+            });
+
+            // 填充数据
+            employeeData.forEach((emp, index) => {
+                const cell = document.querySelector(`.cell-content[data-cell="${emp.box}"]`);
+                if (cell) {
+                    const tag = createEmployeeTag(emp.name, index, emp.box);
+                    cell.appendChild(tag);
+                }
+            });
+
+            // 绑定拖放事件
+            setupDragAndDrop();
+        }
+
+        // 创建员工标签
+        function createEmployeeTag(name, index, originalBox) {
+            const tag = document.createElement('div');
+            tag.className = 'employee-tag bg-white/90 text-gray-800 text-xs px-2.5 py-1 rounded-md shadow-sm font-medium';
+            tag.textContent = name;
+            tag.draggable = true;
+            tag.dataset.index = index;
+            tag.dataset.originalBox = originalBox;
+            
+            return tag;
+        }
+
+        // 设置拖拽功能
+        function setupDragAndDrop() {
+            // 拖拽开始
+            document.querySelectorAll('.employee-tag').forEach(tag => {
+                tag.addEventListener('dragstart', (e) => {
+                    draggedElement = e.target;
+                    draggedCell = e.target.closest('.cell-content').dataset.cell;
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                tag.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('dragging');
+                    document.querySelectorAll('.grid-cell').forEach(cell => {
+                        cell.classList.remove('drag-over');
+                    });
+                    draggedElement = null;
+                    draggedCell = null;
+                });
+            });
+
+            // 拖放目标
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    cell.classList.add('drag-over');
+                });
+
+                cell.addEventListener('dragleave', () => {
+                    cell.classList.remove('drag-over');
+                });
+
+                cell.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    cell.classList.remove('drag-over');
+                    
+                    const targetCell = cell.querySelector('.cell-content').dataset.cell;
+                    
+                    if (draggedElement && draggedCell !== targetCell) {
+                        const index = parseInt(draggedElement.dataset.index);
+                        const targetContent = cell.querySelector('.cell-content');
+                        
+                        // 移动DOM元素
+                        targetContent.appendChild(draggedElement);
+                        
+                        // 更新数据
+                        employeeData[index].box = parseInt(targetCell);
+                        
+                        // 更新统计
+                        updateStats();
+                    }
+                });
+            });
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            const total = employeeData.length;
+            const purple = employeeData.filter(e => [7, 8, 9].includes(e.box)).length;
+            const blue = employeeData.filter(e => [4, 5, 6].includes(e.box)).length;
+            const green = employeeData.filter(e => [1, 2, 3].includes(e.box)).length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('purpleCount').textContent = purple;
+            document.getElementById('blueCount').textContent = blue;
+            document.getElementById('greenCount').textContent = green;
+        }
+
+        // 重置按钮
+        resetBtn.addEventListener('click', () => {
+            if (confirm('确定要重置所有数据吗？')) {
+                employeeData = [];
+                gridContainer.classList.add('hidden');
+                statsBar.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                fileInput.value = '';
+            }
+        });
+
+        // 导出按钮
+        exportBtn.addEventListener('click', () => {
+            if (employeeData.length === 0) return;
+
+            const exportData = employeeData.map(emp => ({
+                '员工姓名': emp.name,
+                '九宫格编号': emp.box
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '人才盘点结果');
+            XLSX.writeFile(wb, '人才盘点九宫格结果.xlsx');
+        });
+    </script>
+</body>
+</html>
